@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ဖုန်းပြင်ဆိုင် စာရင်း</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ဖုန်းဆိုင်စာရင်း">
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#e3e6eb;
+          --accent:#2563eb; --ok:#15803d; --warn:#b45309; --bad:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Pyidaungsu","Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;
+         background:var(--bg); color:var(--text); line-height:1.6; }
+  header { background:var(--accent); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  header h1 { margin:0; font-size:1.15rem; flex:1; }
+  #netStatus { font-size:.8rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.2); }
+  #netStatus.off { background:#fbbf24; color:#1d2230; }
+  #installBtn { background:#fff; color:var(--accent); font-weight:600; }
+  nav { display:flex; gap:4px; padding:8px 16px; background:var(--card); border-bottom:1px solid var(--line); overflow-x:auto; }
+  nav button { border:0; background:none; padding:8px 12px; border-radius:6px; font:inherit; cursor:pointer; white-space:nowrap; }
+  nav button.active { background:var(--accent); color:#fff; }
+  main { max-width:1000px; margin:0 auto; padding:16px; }
+  section { display:none; } section.active { display:block; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+  label { display:block; font-size:.85rem; color:var(--muted); }
+  input, select, textarea { width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; font:inherit; background:#fff; }
+  .btn { border:0; background:var(--accent); color:#fff; padding:8px 14px; border-radius:6px; font:inherit; cursor:pointer; }
+  .btn.sec { background:#e5e7eb; color:var(--text); }
+  .btn.del { background:none; color:var(--bad); padding:4px 8px; }
+  .btn.sm { padding:4px 8px; font-size:.85rem; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .tbl { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { padding:8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .stat { font-size:1.4rem; font-weight:700; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:99px; font-size:.8rem; background:#e5e7eb; }
+  .s-received { background:#dbeafe; } .s-repairing { background:#fef3c7; }
+  .s-done { background:#dcfce7; } .s-delivered { background:#e5e7eb; color:var(--muted); }
+  .low { color:var(--bad); font-weight:700; }
+  .muted { color:var(--muted); font-size:.85rem; }
+  .notice { background:#fff7ed; border:1px solid #fed7aa; color:var(--warn); padding:10px; border-radius:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📱 ဖုန်းပြင်ဆိုင် စာရင်းဇယား</h1>
+  <span id="netStatus">Online</span>
+  <button class="btn sm" id="installBtn" hidden>⬇ App အဖြစ် Install</button>
+</header>
+<nav>
+  <button data-tab="summary" class="active">အနှစ်ချုပ်</button>
+  <button data-tab="jobs">ပြင်ဆင်မှု စာရင်း</button>
+  <button data-tab="parts">ပစ္စည်းစာရင်း</button>
+  <button data-tab="backup">Backup</button>
+</nav>
+<main>
+  <!-- Summary -->
+  <section id="summary" class="active">
+    <div class="grid" id="stats"></div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-top:0">⚠️ လက်ကျန်နည်း ပစ္စည်းများ</h3>
+      <div id="lowStock"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">🔧 မပြီးသေးသော Job များ</h3>
+      <div id="openJobs"></div>
+    </div>
+  </section>
+
+  <!-- Jobs -->
+  <section id="jobs">
+    <form class="card" id="jobForm">
+      <h3 style="margin-top:0" id="jobFormTitle">Job အသစ် ထည့်ရန်</h3>
+      <input type="hidden" name="id">
+      <div class="grid">
+        <div><label>ရက်စွဲ</label><input type="date" name="date" required></div>
+        <div><label>ဖောက်သည်အမည်</label><input name="customer" required></div>
+        <div><label>ဖုန်းနံပါတ်</label><input name="phone" inputmode="tel"></div>
+        <div><label>ဖုန်းမော်ဒယ်</label><input name="model" placeholder="ဥပမာ iPhone 12" required></div>
+        <div style="grid-column:1/-1"><label>ပြဿနာ / ပြင်ရမည့်အချက်</label><input name="problem" required></div>
+        <div><label>ကျသင့်ငွေ (Ks)</label><input type="number" name="price" min="0" step="1" value="0"></div>
+        <div><label>စရံငွေ (Ks)</label><input type="number" name="deposit" min="0" step="1" value="0"></div>
+        <div><label>ပစ္စည်းကုန်ကျစရိတ် (Ks)</label><input type="number" name="cost" min="0" step="1" value="0"></div>
+        <div><label>အခြေအနေ</label>
+          <select name="status">
+            <option value="received">လက်ခံပြီး</option>
+            <option value="repairing">ပြင်နေဆဲ</option>
+            <option value="done">ပြီးပြီ</option>
+            <option value="delivered">ပေးအပ်ပြီး</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">သိမ်းမည်</button>
+        <button class="btn sec" type="button" id="jobCancel">ရှင်းမည်</button>
+      </div>
+    </form>
+    <div class="card">
+      <div class="row" style="margin-top:0">
+        <input id="jobSearch" placeholder="🔍 အမည်၊ ဖုန်း၊ မော်ဒယ် ရှာရန်" style="flex:1;min-width:180px">
+        <select id="jobFilter" style="width:auto">
+          <option value="">အားလုံး</option>
+          <option value="received">လက်ခံပြီး</option>
+          <option value="repairing">ပြင်နေဆဲ</option>
+          <option value="done">ပြီးပြီ</option>
+          <option value="delivered">ပေးအပ်ပြီး</option>
+        </select>
+        <button class="btn sec" id="jobCsv">CSV ထုတ်မည်</button>
+      </div>
+      <div class="tbl" style="margin-top:10px"><table id="jobTable"></table></div>
+    </div>
+  </section>
+
+  <!-- Parts -->
+  <section id="parts">
+    <form class="card" id="partForm">
+      <h3 style="margin-top:0" id="partFormTitle">ပစ္စည်းအသစ် ထည့်ရန်</h3>
+      <input type="hidden" name="id">
+      <div class="grid">
+        <div style="grid-column:1/-1"><label>ပစ္စည်းအမည်</label><input name="name" placeholder="ဥပမာ iPhone 12 Screen" required></div>
+        <div><label>အရေအတွက်</label><input type="number" name="qty" min="0" step="1" value="0"></div>
+        <div><label>သတိပေးရမည့် အနည်းဆုံး</label><input type="number" name="min" min="0" step="1" value="2"></div>
+        <div><label>ဝယ်ဈေး (Ks)</label><input type="number" name="buy" min="0" step="1" value="0"></div>
+        <div><label>ရောင်းဈေး (Ks)</label><input type="number" name="sell" min="0" step="1" value="0"></div>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">သိမ်းမည်</button>
+        <button class="btn sec" type="button" id="partCancel">ရှင်းမည်</button>
+      </div>
+    </form>
+    <div class="card">
+      <div class="row" style="margin-top:0">
+        <input id="partSearch" placeholder="🔍 ပစ္စည်း ရှာရန်" style="flex:1;min-width:180px">
+        <button class="btn sec" id="partCsv">CSV ထုတ်မည်</button>
+      </div>
+      <div class="tbl" style="margin-top:10px"><table id="partTable"></table></div>
+    </div>
+  </section>
+
+  <!-- Backup -->
+  <section id="backup">
+    <div class="card">
+      <p class="notice">Data တွေကို ဒီ browser ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser data ဖျက်ရင် ပျောက်သွားနိုင်လို့
+        <b>ပုံမှန် Backup ဖိုင် download လုပ်ထားပါ</b>။</p>
+      <div class="row">
+        <button class="btn" id="backupBtn">Backup (JSON) ဒေါင်းမည်</button>
+        <label class="btn sec" style="color:var(--text)">Backup ပြန်ထည့်မည်
+          <input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
+      </div>
+      <p class="muted" id="lastBackup"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+const KEY = 'phoneServiceData_v1';
+const STATUS = { received:'လက်ခံပြီး', repairing:'ပြင်နေဆဲ', done:'ပြီးပြီ', delivered:'ပေးအပ်ပြီး' };
+let db = load();
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if (d && Array.isArray(d.jobs) && Array.isArray(d.parts)) return d;
+  } catch (e) {}
+  return { jobs: [], parts: [], lastBackup: null };
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { alert('သိမ်းလို့ မရပါ — Backup ဒေါင်းထားပါ။'); }
+  render();
+}
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ks = n => (Number(n) || 0).toLocaleString('en-US') + ' Ks';
+const today = () => new Date().toISOString().slice(0, 10);
+
+// ---- Tabs ----
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === b.dataset.tab));
+});
+
+// ---- Generic form helpers ----
+function formData(form) {
+  const o = Object.fromEntries(new FormData(form));
+  form.querySelectorAll('input[type=number]').forEach(i => o[i.name] = Number(i.value) || 0);
+  return o;
+}
+function fillForm(form, obj) { for (const [k, v] of Object.entries(obj)) if (form.elements[k]) form.elements[k].value = v; }
+
+// ---- Jobs ----
+const jobForm = document.getElementById('jobForm');
+function resetJob() { jobForm.reset(); jobForm.elements.id.value = ''; jobForm.elements.date.value = today();
+  document.getElementById('jobFormTitle').textContent = 'Job အသစ် ထည့်ရန်'; }
+jobForm.onsubmit = e => {
+  e.preventDefault();
+  const j = formData(jobForm);
+  if (j.id) { const i = db.jobs.findIndex(x => x.id === j.id); db.jobs[i] = { ...db.jobs[i], ...j }; }
+  else db.jobs.unshift({ ...j, id: uid() });
+  if (j.status === 'delivered') { const x = db.jobs.find(x => x.id === (j.id || db.jobs[0].id)); x.deliveredAt ||= today(); }
+  resetJob(); save();
+};
+document.getElementById('jobCancel').onclick = resetJob;
+document.getElementById('jobSearch').oninput = renderJobs;
+document.getElementById('jobFilter').onchange = renderJobs;
+
+function editJob(id) {
+  fillForm(jobForm, db.jobs.find(j => j.id === id));
+  document.getElementById('jobFormTitle').textContent = 'Job ပြင်ဆင်ရန်';
+  jobForm.scrollIntoView({ behavior: 'smooth' });
+}
+function setStatus(id, s) {
+  const j = db.jobs.find(j => j.id === id); j.status = s;
+  if (s === 'delivered') j.deliveredAt ||= today();
+  save();
+}
+function delJob(id) { if (confirm('ဒီ Job ကို ဖျက်မှာ သေချာလား?')) { db.jobs = db.jobs.filter(j => j.id !== id); save(); } }
+
+function renderJobs() {
+  const q = document.getElementById('jobSearch').value.toLowerCase();
+  const f = document.getElementById('jobFilter').value;
+  const rows = db.jobs.filter(j => (!f || j.status === f) &&
+    (!q || [j.customer, j.phone, j.model, j.problem].join(' ').toLowerCase().includes(q)));
+  document.getElementById('jobTable').innerHTML = rows.length ? `
+    <tr><th>ရက်စွဲ</th><th>ဖောက်သည်</th><th>ဖုန်း / ပြဿနာ</th><th class="num">ကျသင့်ငွေ</th><th class="num">ကျန်ငွေ</th><th>အခြေအနေ</th><th></th></tr>
+    ${rows.map(j => `<tr>
+      <td>${esc(j.date)}</td>
+      <td>${esc(j.customer)}<div class="muted">${esc(j.phone)}</div></td>
+      <td>${esc(j.model)}<div class="muted">${esc(j.problem)}</div></td>
+      <td class="num">${ks(j.price)}</td>
+      <td class="num">${ks(j.price - j.deposit)}</td>
+      <td><select class="sm" onchange="setStatus('${j.id}',this.value)">
+        ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === j.status ? 'selected' : ''}>${v}</option>`).join('')}
+      </select></td>
+      <td><button class="btn sec sm" onclick="editJob('${j.id}')">ပြင်</button>
+          <button class="btn del sm" onclick="delJob('${j.id}')">ဖျက်</button></td>
+    </tr>`).join('')}` : '<tr><td class="muted">စာရင်း မရှိသေးပါ</td></tr>';
+}
+
+// ---- Parts ----
+const partForm = document.getElementById('partForm');
+function resetPart() { partForm.reset(); partForm.elements.id.value = '';
+  document.getElementById('partFormTitle').textContent = 'ပစ္စည်းအသစ် ထည့်ရန်'; }
+partForm.onsubmit = e => {
+  e.preventDefault();
+  const p = formData(partForm);
+  if (p.id) { const i = db.parts.findIndex(x => x.id === p.id); db.parts[i] = { ...db.parts[i], ...p }; }
+  else db.parts.push({ ...p, id: uid() });
+  resetPart(); save();
+};
+document.getElementById('partCancel').onclick = resetPart;
+document.getElementById('partSearch').oninput = renderParts;
+
+function editPart(id) {
+  fillForm(partForm, db.parts.find(p => p.id === id));
+  document.getElementById('partFormTitle').textContent = 'ပစ္စည်း ပြင်ဆင်ရန်';
+  partForm.scrollIntoView({ behavior: 'smooth' });
+}
+function adjQty(id, d) { const p = db.parts.find(p => p.id === id); p.qty = Math.max(0, p.qty + d); save(); }
+function delPart(id) { if (confirm('ဒီပစ္စည်းကို ဖျက်မှာ သေချာလား?')) { db.parts = db.parts.filter(p => p.id !== id); save(); } }
+
+function renderParts() {
+  const q = document.getElementById('partSearch').value.toLowerCase();
+  const rows = db.parts.filter(p => !q || p.name.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name));
+  document.getElementById('partTable').innerHTML = rows.length ? `
+    <tr><th>ပစ္စည်း</th><th class="num">လက်ကျန်</th><th class="num">ဝယ်ဈေး</th><th class="num">ရောင်းဈေး</th><th class="num">တန်ဖိုး</th><th></th></tr>
+    ${rows.map(p => `<tr>
+      <td>${esc(p.name)}</td>
+      <td class="num ${p.qty <= p.min ? 'low' : ''}">
+        <button class="btn sec sm" onclick="adjQty('${p.id}',-1)">−</button> ${p.qty}
+        <button class="btn sec sm" onclick="adjQty('${p.id}',1)">+</button></td>
+      <td class="num">${ks(p.buy)}</td><td class="num">${ks(p.sell)}</td>
+      <td class="num">${ks(p.buy * p.qty)}</td>
+      <td><button class="btn sec sm" onclick="editPart('${p.id}')">ပြင်</button>
+          <button class="btn del sm" onclick="delPart('${p.id}')">ဖျက်</button></td>
+    </tr>`).join('')}` : '<tr><td class="muted">စာရင်း မရှိသေးပါ</td></tr>';
+}
+
+// ---- Summary ----
+function renderSummary() {
+  const t = today(), m = t.slice(0, 7);
+  const deliv = db.jobs.filter(j => j.status === 'delivered');
+  const sum = (arr, f) => arr.reduce((s, x) => s + (Number(f(x)) || 0), 0);
+  const todayJobs = deliv.filter(j => (j.deliveredAt || j.date) === t);
+  const monthJobs = deliv.filter(j => (j.deliveredAt || j.date).startsWith(m));
+  const open = db.jobs.filter(j => j.status !== 'delivered');
+  const stockVal = sum(db.parts, p => p.buy * p.qty);
+  const stats = [
+    ['ယနေ့ ဝင်ငွေ', ks(sum(todayJobs, j => j.price))],
+    ['ယခုလ ဝင်ငွေ', ks(sum(monthJobs, j => j.price))],
+    ['ယခုလ အမြတ် (ခန့်မှန်း)', ks(sum(monthJobs, j => j.price - j.cost))],
+    ['မပြီးသေး Job', open.length],
+    ['ပြီးလို့ ယူဖို့စောင့်', db.jobs.filter(j => j.status === 'done').length],
+    ['Stock တန်ဖိုး', ks(stockVal)],
+  ];
+  document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
+    `<div class="card" style="margin:0"><div class="muted">${l}</div><div class="stat">${v}</div></div>`).join('');
+
+  const low = db.parts.filter(p => p.qty <= p.min);
+  document.getElementById('lowStock').innerHTML = low.length
+    ? low.map(p => `<div>${esc(p.name)} — <span class="low">${p.qty} ခု</span></div>`).join('')
+    : '<span class="muted">မရှိပါ ✅</span>';
+  document.getElementById('openJobs').innerHTML = open.length
+    ? open.map(j => `<div><span class="badge s-${j.status}">${STATUS[j.status]}</span>
+        ${esc(j.customer)} — ${esc(j.model)} <span class="muted">(${esc(j.date)})</span></div>`).join('')
+    : '<span class="muted">မရှိပါ ✅</span>';
+}
+
+// ---- CSV / Backup ----
+function download(name, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function csv(rows) {
+  return '﻿' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+}
+document.getElementById('jobCsv').onclick = () => download(`jobs-${today()}.csv`, csv([
+  ['ရက်စွဲ', 'ဖောက်သည်', 'ဖုန်းနံပါတ်', 'မော်ဒယ်', 'ပြဿနာ', 'ကျသင့်ငွေ', 'စရံ', 'ကုန်ကျစရိတ်', 'အခြေအနေ', 'ပေးအပ်ရက်'],
+  ...db.jobs.map(j => [j.date, j.customer, j.phone, j.model, j.problem, j.price, j.deposit, j.cost, STATUS[j.status], j.deliveredAt])
+]), 'text/csv');
+document.getElementById('partCsv').onclick = () => download(`parts-${today()}.csv`, csv([
+  ['ပစ္စည်း', 'လက်ကျန်', 'အနည်းဆုံး', 'ဝယ်ဈေး', 'ရောင်းဈေး'],
+  ...db.parts.map(p => [p.name, p.qty, p.min, p.buy, p.sell])
+]), 'text/csv');
+document.getElementById('backupBtn').onclick = () => {
+  db.lastBackup = new Date().toLocaleString();
+  download(`phone-service-backup-${today()}.json`, JSON.stringify(db, null, 2), 'application/json');
+  save();
+};
+document.getElementById('restoreFile').onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  file.text().then(t => {
+    const d = JSON.parse(t);
+    if (!Array.isArray(d.jobs) || !Array.isArray(d.parts)) throw new Error();
+    if (confirm('လက်ရှိ data တွေကို Backup နဲ့ အစားထိုးမှာ သေချာလား?')) { db = d; save(); alert('ပြန်ထည့်ပြီးပါပြီ'); }
+  }).catch(() => alert('Backup ဖိုင် မမှန်ပါ')).finally(() => e.target.value = '');
+};
+
+function render() {
+  renderSummary(); renderJobs(); renderParts();
+  document.getElementById('lastBackup').textContent =
+    'နောက်ဆုံး Backup: ' + (db.lastBackup || 'မလုပ်ရသေးပါ');
+}
+resetJob(); render();
+
+// ---- PWA: offline + install ----
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+// Browser က data ကို အလိုအလျောက် မဖျက်အောင် တောင်းဆိုထားမယ်
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+const net = document.getElementById('netStatus');
+function updateNet() {
+  net.textContent = navigator.onLine ? 'Online' : 'Offline — ဆက်သုံးလို့ရပါတယ်';
+  net.classList.toggle('off', !navigator.onLine);
+}
+addEventListener('online', updateNet); addEventListener('offline', updateNet); updateNet();
+
+let installPrompt = null;
+const installBtn = document.getElementById('installBtn');
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; installBtn.hidden = false; });
+installBtn.onclick = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt(); await installPrompt.userChoice;
+  installPrompt = null; installBtn.hidden = true;
+};
+addEventListener('appinstalled', () => { installBtn.hidden = true; });
+</script>
+</body>
+</html>
