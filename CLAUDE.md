@@ -100,6 +100,10 @@
 - **Print**: `#printArea` + `@media print`၊ `@page size` ကို စက္ကူအလိုက် `doPrint()` က ထည့်တယ်။ ပုံ load ပြီးမှ print။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။
+- **App Update bar** (ဆိုင်ရှင် တောင်းဆိုချက်): `sw.js` VERSION ပြောင်းပြီး deploy လုပ်ရင် SW အသစ်က **waiting** မှာ
+  စောင့်နေ (auto `skipWaiting` မလုပ်) → app အပေါ်ဆုံး (topbar ထဲ) မှာ **အစိမ်းရောင် "🆕 App အသစ် ရပါပြီ — Update"** bar ပြ →
+  နှိပ်ရင် `SKIP_WAITING` message → `controllerchange` မှာ reload။ Update စစ်ချိန်: app ဖွင့်တာ၊ tab ပြန်မြင်တာ၊ ၃၀ မိနစ်တိုင်း။
+  ပထမဆုံး install မှာ bar မပြ။ ⚠️ ဒါကြောင့် **VERSION မတိုးရင် bar မပေါ်** (code စည်းမျဉ်း ကြည့်)။
 - **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages `https://pk-mobile.pages.dev`** (sync ပါ — ဆိုင်က သုံးတဲ့ အဓိက link) / GitHub Pages (sync မပါ — အဟောင်း)။
   ⚠️ link မတူရင် localStorage မတူ — GitHub Pages ကထည့်ထားတဲ့ data ကို Backup → Restore နဲ့ ရွှေ့ရ။
 
