@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v16**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v17**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -170,7 +170,10 @@
 - ယနေ့ရက်စွဲကို local time နဲ့ ယူပါ (`today()`) — `toISOString()` တိုက်ရိုက်မသုံးရ (UTC ဖြစ်သွားတယ်)။
 - CLAUDE.md ကို feature အသစ်ထည့်တိုင်း update လုပ်ပါ။
 - App ဖိုင် ပြင်တိုင်း `sw.js` ထဲက `VERSION` ကို တိုးပါ။ ဖိုင်အသစ်ထည့်ရင် `FILES` list ထဲလည်း ထည့်ပါ။
-- Icon ပြောင်းရင် `icons/icon.svg` ကို ပြင်ပြီး PNG တွေကို ပြန် generate လုပ်ပါ။
+- **App icon** = ဆိုင်ရှင်ပေးတဲ့ **Smile Mobile logo** (1254px PNG — repo ထဲ မူရင်းမထည့်၊ `icons/icon-512.png` ကို အကြီးဆုံးအဖြစ်သုံး)။
+  ထုတ်ပုံ: logo ရဲ့ အမည်းရောင် ထောင့်တွေကို rounded-rect mask နဲ့ ဖောက်ထွင်း (transparent) → `icon-192/512.png`၊
+  `apple-touch-icon.png` (180, အပြာနောက်ခံ — iOS က ထောင့်ဝိုင်းပေး)၊ `maskable-512.png` (အပြာနောက်ခံ #0846E1 ပေါ် 80% — Android safe zone)။
+  Favicon = `icon-192.png`။ `icons/icon.svg` က icon အဟောင်း (မသုံးတော့)။ ⚠️ Icon ပြောင်းရင် ဖုန်းမှာ app ဖျက်ပြီး ပြန် install မှ ပြောင်း။
 
 ## ဖွင့်သုံးနည်း
 - **စမ်းကြည့်ရုံ**: `index.html` ကို browser ဖြင့် ဖွင့်ပါ (offline/install မပါ)။
