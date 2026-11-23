@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v20**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v21**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -131,6 +131,9 @@
   ဇယား action ခလုတ် `ib(name, title, fn)` — အရောင် `IB_COLOR` (printer=blue, circle-check-big=green, hand-coins=teal,
   coins=amber, ellipsis-vertical=slate, pencil=indigo, trash-2=red)။ Icon အသစ်လိုရင် lucide-static ကနေ symbol ထပ်ထည့်ပါ။
   Home tile တွေက `c-blue/green/teal/orange/rose/violet/amber/slate` gradient icon။ CSS "Design v2" block က အပေါ်က rule တွေကို override လုပ်တယ်။
+- **Dark mode** (ဆိုင်ရှင် တောင်းဆို): topbar က 🌙/☀️ ခလုတ် (`#themeBtn`)၊ `html[data-theme=dark]` + CSS "Dark mode" block၊
+  စက်တစ်လုံးချင်း (`localStorage` key `phoneServiceTheme`၊ Sync မပါ)၊ `<head>` ထဲ inline script နဲ့ ပထမ paint မတိုင်ခင် apply။
+  Print/ဘောင်ချာက theme မလိုက် — အမြဲ အဖြူ/အမည်း။ Element အသစ်ထည့်ရင် dark override လိုမလို စစ်ပါ (#fff hard-code တွေ)။
 - **UI ဘာသာစကား**: မြန်မာဘာသာ။ ငွေ = ကျပ် (Ks)၊ comma ခြား။ ရက်စွဲပြပုံ `dd-mm-yyyy`။
 - **စာလုံး/စာရိုက်ကွက် အရွယ်** (ဆိုင်ရှင် "သေးတယ်" လို့ ပြောပြီး ကြီးထားတာ): `html { font-size:18px }`၊ input/button
   အမြင့် ≥46px၊ size တွေအားလုံး `rem` နဲ့ ရေးပါ (px မသုံးရ — ဘောင်ချာ print မှလွဲ)။ ဆက်တင်မှာ **စာလုံးအရွယ်**
