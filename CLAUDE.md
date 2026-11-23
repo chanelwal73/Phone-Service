@@ -99,7 +99,7 @@
 - **Print**: `#printArea` + `@media print`၊ `@page size` ကို စက္ကူအလိုက် `doPrint()` က ထည့်တယ်။ ပုံ load ပြီးမှ print။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။
-- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages** (sync ပါ — အဓိက) / GitHub Pages (sync မပါ)။
+- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages `https://pk-mobile.pages.dev`** (sync ပါ — ဆိုင်က သုံးတဲ့ အဓိက link) / GitHub Pages (sync မပါ — အဟောင်း)။
   ⚠️ link မတူရင် localStorage မတူ — GitHub Pages ကထည့်ထားတဲ့ data ကို Backup → Restore နဲ့ ရွှေ့ရ။
 
 ## Code စည်းမျဉ်း
@@ -158,4 +158,4 @@
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
 - [x] GitHub Pages ပေါ် deploy (`https://chanelwal73.github.io/Phone-Service/`, `main` branch)
 - [x] စက်များကြား data sync (ဖုန်း ↔ laptop) — Cloudflare Pages Functions + D1, offline-first (code ပြီး)
-- [ ] Cloudflare Pages ပေါ် deploy + D1/Secret setup (ဆိုင်ရှင် dashboard မှာ)
+- [x] Cloudflare Pages ပေါ် deploy + D1/Secret setup — **`https://pk-mobile.pages.dev`** (project `pk-mobile`, `main` push တိုင်း auto deploy)၊ ဖုန်းမှာ Sync ✓ အတည်ပြုပြီး
