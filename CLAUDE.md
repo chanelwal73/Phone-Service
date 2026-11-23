@@ -7,13 +7,50 @@
 
 (⚠️ ဖောက်သည် အမည်/ဖုန်းနံပါတ် လို data အစစ်တွေကို repo ထဲ ဘယ်တော့မှ မထည့်ရ — repo က public ဖြစ်နိုင်တယ်)
 
+## 🔖 လက်ရှိအခြေအနေ / နောက်တစ်ခါ ဆက်လုပ်ရန် (Handoff — 2026-11-23)
+> Session အသစ် (ဘယ် Claude account ကဖြစ်ဖြစ်) စရင် **ဒီအပိုင်းကို အရင်ဖတ်ပါ**။ ဆိုင်ရှင်နဲ့ မြန်မာလို ပြောပါ။
+
+**ပြီးသွားတာ (အကုန် `main` ထဲမှာ — PR #1–#10 merge ပြီး)**
+- App အပြည့်အစုံ: screen ၆ ခု + ပစ္စည်းလက်ကျန် + ဆက်တင်၊ ပြုပြင်ဆဲ → ပြုပြင်ပြီး → ထုတ်ပြီး workflow၊ A5 ဘောင်ချာ
+  (barcode/QR/ဖြတ်ပိုင်း)၊ မြန်မာ font၊ Lucide icon design၊ PWA install + offline၊ Update bar၊ စာလုံးအရွယ် ဆက်တင်
+- Cloudflare Sync (Pages Functions + D1) — ဖုန်း + laptop ချိတ်ပြီး Sync ✓ အလုပ်လုပ်ကြောင်း ဆိုင်ရှင် အတည်ပြုပြီး
+- Live: **`https://pk-mobile.pages.dev`** (Cloudflare account "A"၊ project `pk-mobile`၊ `main` push → auto deploy)
+
+**⚠️ လက်ရှိ ပြဿနာ — မြန်မာ ISP က `*.pages.dev` ကို ပိတ်ထား**
+- VPN ချိတ်မှ `pk-mobile.pages.dev` ဝင်လို့ရ။ `chanelwal73.github.io/Phone-Service/` က VPN မပါဘဲ ရ (ဆိုင်ရှင် စစ်ပြီး)
+- github.io မှာ Sync မရ (`/api` မရှိ) → ဆိုင်ရှင် စက်နှစ်လုံး မျှသုံးချင်လို့ **custom domain လို**
+
+**👉 နောက်တစ်ဆင့် (ဆိုင်ရှင် "နောက်ရက်မှ လုပ်မယ်" လို့ ပြောထား) — Custom subdomain ချိတ်ရန်**
+- ဆိုင်ရှင်မှာ domain ရှိပြီးသား — **Cloudflare account "B"** (တခြားဖုန်းမှာ သုံးနေတဲ့ account၊ တခြား project အတွက်)
+- Code ပြင်စရာ **မလို** (API က relative path `api/…`)။ Dashboard မှာပဲ လုပ်ရ:
+  1. Account A → Workers & Pages → `pk-mobile` → **Custom domains → Set up a custom domain** → `shop.<domain>` (နာမည် ဆိုင်ရှင်ရွေး)
+  2. Account B → domain → DNS → **Add record**: `CNAME` · Name `shop` · Target `pk-mobile.pages.dev` · Proxied
+     (လက်ရှိ record တွေ မထိရ — တခြား project ရှိလို့)
+  3. Account A မှာ Active ✅ ဖြစ်အောင်စောင့် → **VPN ပိတ်ပြီး** subdomain နဲ့ စမ်း
+  4. Error 1014 (CNAME Cross-User Banned) ပေါ်ရင် → record ကို **DNS only (grey cloud)** ပြောင်း
+- အောင်မြင်ပြီးရင်:
+  - ဖုန်း/laptop မှာ **link အသစ်နဲ့ app ပြန် install + Sync password ပြန်ထည့်** (origin မတူ → localStorage မတူ၊ data က cloud ကပြန်ရ)
+  - pages.dev app မှာ sync မဖြစ်သေးတာ (pill မှာ "(N)") ရှိရင် VPN ဖွင့်ပြီး "ယခု Sync" အရင်နှိပ်ခိုင်း
+  - ဒီဖိုင်ရဲ့ Hosting / Roadmap မှာ link အသစ် မှတ်ပါ
+- ⚠️ ဆိုင် password (`SHOP_PASSWORD`) ကို ဘယ်တော့မှ chat/repo ထဲ မမေး၊ မရေး
+
+**ကျန်သေးတဲ့ အကြံပြုချက်များ (ဆိုင်ရှင် မတောင်းဆိုရသေး)**
+- ပရိုဂရမ်အဟောင်းရဲ့ Excel data import · လဲထည့်ပစ္စည်း stock အလိုအလျောက်နုတ် · အာမခံရက် ခြေရာခံ
+
+**Dev workflow**
+- Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
+- Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v15**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
+
 ## လုပ်ငန်းစဉ် (Workflow)
 ```
-ဖုန်းလက်ခံ (+ အသစ်ထည့်) → [လက်ခံစာရင်း]  --▶ ပြင်ပြီး/ထုတ်ယူ-->  [ပြုပြင်ပြီးစာရင်း]
-                                  🖨 လက်ခံဘောင်ချာ          ├→ [ဝင်ငွေစာရင်း] (ပစ္စည်းဖိုး + လက်ခ)
-                                                             └→ [ပျက်စီးဆုံးရှုံးမှုစာရင်း] (ပြင်ရင်း ပျက်သွားတာရှိရင်)
-[ဆိုင်အသုံးစရိတ်စာရင်း] (သီးခြား ထည့်)
-[အရှုံး/အမြတ်] = ရက်စွဲအပိုင်းအခြားအလိုက် အားလုံးကို ပေါင်းတွက်
+ဖုန်းလက်ခံ (+ အသစ်ထည့်) → [လက်ခံစာရင်း / ပြုပြင်ဆဲ]  --▶ ပစ္စည်းဖိုးထည့်-->  [ပြုပြင်ပြီးစာရင်း]
+   🖨 လက်ခံဘောင်ချာ                                                   │ (မထုတ်ရသေး — ဆိုင်မှာရှိ)
+                                                                       └─▶ ဖုန်းပြန်ထုတ်ပေး (ရက်ရွေး) → ထုတ်ပြီး
+                                                                              ├→ [ဝင်ငွေစာရင်း] (ပစ္စည်းဖိုး + လက်ခ)
+                                                                              └→ [အရှုံး/အမြတ်] (ထုတ်ရက်အလိုက်)
+[ပျက်စီးဆုံးရှုံးမှုစာရင်း] (ပြင်ရင်း ပျက်သွားတာ)   [ဆိုင်အသုံးစရိတ်စာရင်း] (သီးခြား ထည့်)
 ```
 
 ## Screen များ (လက်ရှိ program အတိုင်း)
@@ -21,10 +58,13 @@
 
 1. **ဖုန်းပြင်လက်ခံစာရင်း** — ပြင်ဖို့ လက်ခံထားဆဲ ဖုန်းများ
    - Column: Vr No.၊ အမည်၊ ဖုန်းနံပါတ်၊ ဖုန်းအမျိုးအစား၊ IMEI၊ အကြောင်းအရာ၊ Service ဆရာ၊ ခန့်မှန်းကုန်ကျငွေ၊ ဖုန်းအပ်သည့်ရက်
-   - Actions: 🖨 Print (လက်ခံဘောင်ချာ)၊ ▶ ပြင်ပြီး/ထုတ်ယူ (ပြုပြင်ပြီးစာရင်းသို့ ရွှေ့)၊ ✏️ ပြင်၊ ❌ ဖျက်
-2. **ပြုပြင်ပြီးစာရင်း**
-   - Card: ဝင်ငွေစုစုပေါင်း / ပစ္စည်းဖိုးစုစုပေါင်း / လက်ခစုစုပေါင်း / ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း
-   - Column: Vr No.၊ အမည်၊ ဖုန်း၊ အမျိုးအစား၊ IMEI၊ အကြောင်းအရာ၊ Service ဆရာ၊ ဖုန်းအပ်သည့်ရက်၊ ပြုပြင်မှုအခြေအနေ (အောင်မြင်/မအောင်မြင်)
+   - Actions: Print (လက်ခံဘောင်ချာ)၊ ✔ ပြုပြင်ပြီးစာရင်းသို့ ပြောင်းရန်၊ ပြင်၊ ဖျက်
+2. **ပြုပြင်ပြီးစာရင်း** (`repaired` + `done`)
+   - Card: ဝင်ငွေ / ပစ္စည်းဖိုး / လက်ခ / ပျက်စီးမှု စုစုပေါင်း + **ထုတ်ရန်ကျန် N လုံး (ယူရမည့်ငွေ)**
+   - Filter: အားလုံး / ထုတ်ရန်ကျန် / ထုတ်ပြီး
+   - Column: Vr No.၊ အမည်၊ ဖုန်း၊ အမျိုးအစား၊ IMEI၊ ပြုပြင်သည့်အကြောင်းအရာ၊ ပစ္စည်းဖိုး၊ လက်ခ၊ စုစုပေါင်း၊ ပျက်စီးမှု၊
+     Service ဆရာ၊ ဖုန်းအပ်သည့်ရက်၊ ဖုန်းထုတ်ယူသည့်ရက် (မထုတ်ရသေး tag)၊ ပြုပြင်မှုအခြေအနေ
+   - Actions: Print၊ ဖုန်းပြန်ထုတ်ပေးရန် (repaired မှ)၊ ပစ္စည်းဖိုး/လက်ခ ပြင်၊ ⋮ menu၊ ပြင်၊ ဖျက်
 3. **ဝင်ငွေစာရင်း**
    - Card: ဝင်ငွေ / ပစ္စည်းဖိုး / လက်ခ စုစုပေါင်း
    - Column: Vr No.၊ အမည်၊ အမျိုးအစား၊ အကြောင်းအရာ၊ ဖုန်းအပ်သည့်ရက်၊ ဖုန်းထုတ်ယူသည့်ရက်၊ လဲထည့်သည့်ပစ္စည်း၊ ပစ္စည်းဖိုး၊ လက်ခ၊ စုစုပေါင်း
@@ -79,14 +119,14 @@
 - `repaired` ဘောင်ချာ print = ငွေရှင်းဘောင်ချာ (ရက် = ယနေ့)
 - ⚠️ `status: 'repaired'` က အသစ်ထည့်တဲ့ တန်ဖိုး (data key မပြောင်း — data ဟောင်း အကုန် valid)။ app ဟောင်းကို update မလုပ်ရသေးတဲ့ စက်က
   `repaired` ကို မမြင်ရ → Update bar နဲ့ update ခိုင်းပါ
-- Vr No. = `nextVr` ကနေ အစဉ်လိုက် (1001, 1002, ...)
+- Vr No. = `nextVr` ကနေ အစဉ်လိုက် (1001, 1002, ...) — Sync ချိတ်ထားရင် server counter က ခွဲပေး (Sync အပိုင်းကြည့်)
 - `_v1` data ရှိရင် အလိုအလျောက် v2 ကို migrate လုပ်တယ် (`migrateV1`)
 
 ## နည်းပညာ ဆုံးဖြတ်ချက်များ
 - **Single-file web app**: `index.html` တစ်ဖိုင်တည်း (HTML + CSS + vanilla JS)။ build step မရှိ။
 - Screen ပြောင်းတာ hash routing (`#received`, `#completed`, `#income`, `#expenses`, `#damaged`,
   `#profit`, `#parts`, `#settings`)။ List screen ၆ ခုက `VIEWS` config တစ်ခုတည်းကနေ render လုပ်တယ်။
-- **External library မသုံး** (offline အလုပ်လုပ်ရမယ်)။
+- **CDN/external library မသုံး** (offline အလုပ်လုပ်ရမယ်) — လိုရင် repo ထဲ vendor လုပ် (`vendor/qrcode.js`၊ Lucide sprite)။
 - **Design / Icons** (ဆိုင်ရှင် "icon/button အလန်းလေး" တောင်းဆိုချက်): emoji မသုံး — **Lucide icons** (lucide-static 1.70.0,
   ISC) ကို `index.html` ထိပ်က inline SVG sprite (`<symbol id="i-…">`) အဖြစ် ထည့်ထား (offline OK)။ JS: `svgI(name)`၊
   ဇယား action ခလုတ် `ib(name, title, fn)` — အရောင် `IB_COLOR` (printer=blue, circle-check-big=green, hand-coins=teal,
