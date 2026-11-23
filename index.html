@@ -5,374 +5,784 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ဖုန်းပြင်ဆိုင် စာရင်း</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#1f2433">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ဖုန်းဆိုင်စာရင်း">
 <style>
-  :root { --bg:#f5f6f8; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#e3e6eb;
-          --accent:#2563eb; --ok:#15803d; --warn:#b45309; --bad:#b91c1c; }
+  /* Fonts (offline, sw.js မှာ cache) — Padauk: SIL OFL, Akkhayar Robo: free to use */
+  @font-face { font-family:"Padauk"; font-weight:400; font-display:swap; src:url(fonts/padauk-myanmar-400.woff2) format("woff2");
+               unicode-range:U+1000-109F, U+200C-200D, U+25CC, U+A9E0-A9FF, U+AA60-AA7F; }
+  @font-face { font-family:"Padauk"; font-weight:700; font-display:swap; src:url(fonts/padauk-myanmar-700.woff2) format("woff2");
+               unicode-range:U+1000-109F, U+200C-200D, U+25CC, U+A9E0-A9FF, U+AA60-AA7F; }
+  @font-face { font-family:"Padauk"; font-weight:400; font-display:swap; src:url(fonts/padauk-latin-400.woff2) format("woff2");
+               unicode-range:U+0000-00FF, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212; }
+  @font-face { font-family:"Padauk"; font-weight:700; font-display:swap; src:url(fonts/padauk-latin-700.woff2) format("woff2");
+               unicode-range:U+0000-00FF, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212; }
+  @font-face { font-family:"Akkhayar Robo"; font-display:swap; src:url(fonts/akkhayar-robo.woff2) format("woff2");
+               unicode-range:U+1000-109F; } /* မြန်မာစာလုံးသာ — ဂဏန်း/English က Padauk (2 နဲ့ Z မရောအောင်) */
+  :root { --font:"Padauk","Pyidaungsu","Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;
+          --font-head:"Akkhayar Robo",var(--font); }
+  :root { --bg:#eef0f4; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#dfe3ea; --nav:#1f2433;
+          --accent:#2563eb; --green:#16a34a; --red:#dc2626; }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:"Pyidaungsu","Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;
+  body { margin:0; font-family:var(--font);
          background:var(--bg); color:var(--text); line-height:1.6; }
-  header { background:var(--accent); color:#fff; padding:12px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  header h1 { margin:0; font-size:1.15rem; flex:1; }
-  #netStatus { font-size:.8rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.2); }
-  #netStatus.off { background:#fbbf24; color:#1d2230; }
-  #installBtn { background:#fff; color:var(--accent); font-weight:600; }
-  nav { display:flex; gap:4px; padding:8px 16px; background:var(--card); border-bottom:1px solid var(--line); overflow-x:auto; }
-  nav button { border:0; background:none; padding:8px 12px; border-radius:6px; font:inherit; cursor:pointer; white-space:nowrap; }
-  nav button.active { background:var(--accent); color:#fff; }
-  main { max-width:1000px; margin:0 auto; padding:16px; }
-  section { display:none; } section.active { display:block; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; }
+  .topbar { background:var(--nav); color:#fff; padding:10px 16px; display:flex; align-items:center; gap:10px;
+            flex-wrap:wrap; position:sticky; top:0; z-index:5; }
+  .topbar h1 { margin:0; font-size:1.1rem; flex:1; }
+  h1, h2, h3, .tile, .stat .v, .stat .l, .ptable tr.net td, .period, .receipt h2 { font-family:var(--font-head); font-weight:400; }
+  .back { background:none; border:0; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; padding:0 6px; }
+  .pill { font-size:.78rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.15); }
+  .pill.off { background:#fbbf24; color:var(--text); }
+  main { padding:16px; max-width:1600px; margin:0 auto; }
+  .view { display:none; } .view.active { display:block; }
+
+  /* Home */
+  .home-wrap { max-width:780px; margin:16px auto; }
+  .brand { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .brand img { width:56px; height:56px; border-radius:12px; }
+  .brand h2 { margin:0; font-size:1.3rem; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .tile { display:flex; align-items:center; gap:14px; background:var(--card); border:1px solid var(--line);
+          border-radius:14px; padding:16px 18px; font:inherit; font-size:1.02rem; cursor:pointer; text-align:left;
+          color:inherit; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .tile:hover { border-color:var(--accent); box-shadow:0 4px 14px rgba(37,99,235,.12); }
+  .tile .ic { font-size:1.8rem; width:52px; height:52px; display:grid; place-items:center; border-radius:12px;
+              background:#eef2ff; flex:none; }
+  .tile.minor { font-size:.95rem; padding:12px 18px; }
+  .tile.minor .ic { width:40px; height:40px; font-size:1.3rem; background:#f1f5f9; }
+  .today { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:18px; }
+  .today > div { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .today .l { font-size:.8rem; color:var(--muted); } .today .v { font-weight:700; font-size:1.1rem; }
+  .notice { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; padding:10px 12px; border-radius:10px; margin-top:14px; }
+
+  /* Controls */
+  select, input, textarea { padding:7px 9px; border:1px solid var(--line); border-radius:7px; font:inherit;
+                            background:#fff; color:var(--text); }
+  .btn { border:0; background:var(--accent); color:#fff; padding:8px 14px; border-radius:8px; font:inherit;
+         cursor:pointer; white-space:nowrap; }
+  .btn.green { background:var(--green); } .btn.sec { background:#e5e7eb; color:var(--text); }
+  .btn.ghost { background:#fff; border:1px solid var(--line); color:var(--text); }
+  .btn.sm { padding:4px 10px; font-size:.85rem; }
+  .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .toolbar .grow { flex:1; }
+  .toolbar .lbl { font-size:.85rem; color:var(--muted); }
+  .count { color:var(--muted); font-size:.85rem; }
+
+  /* Stat cards */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
+  .stat { border-radius:12px; padding:12px 16px; color:#fff; }
+  .stat .l { font-size:.85rem; opacity:.92; } .stat .v { font-size:1.35rem; font-weight:700; font-synthesis:none; font-variant-numeric:tabular-nums; }
+  .stat.green { background:linear-gradient(135deg,#15803d,#22c55e); }
+  .stat.purple { background:linear-gradient(135deg,#6d28d9,#a855f7); }
+  .stat.blue { background:linear-gradient(135deg,#0369a1,#0ea5e9); }
+  .stat.red { background:linear-gradient(135deg,#b91c1c,#f43f5e); }
+  .stat.gray { background:linear-gradient(135deg,#334155,#64748b); }
+  @media (max-width:600px) {
+    .stats { grid-template-columns:1fr 1fr; gap:8px; }
+    .stat { padding:8px 12px; } .stat .v { font-size:1.05rem; } .stat .l { font-size:.75rem; }
+    main { padding:12px; }
+  }
+
+  /* Table */
+  .tbl { background:var(--card); border-radius:10px; overflow:auto; border:1px solid var(--line);
+         max-height:calc(100vh - 250px); min-height:200px; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th { position:sticky; top:0; background:var(--nav); color:#fff; font-weight:600; text-align:left;
+       padding:9px 10px; white-space:nowrap; z-index:1; }
+  td { padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even) td { background:#f8fafc; }
+  tbody tr:hover td { background:#eef2ff; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .nowrap { white-space:nowrap; }
+  .acts { white-space:nowrap; }
+  .ib { border:0; background:none; cursor:pointer; font-size:1.05rem; padding:2px 6px; border-radius:6px; }
+  .ib:hover { background:#dbeafe; }
+  .ok { color:var(--green); font-weight:600; } .bad { color:var(--red); font-weight:600; }
+  .low { color:var(--red); font-weight:700; }
+  .empty { padding:40px; text-align:center; color:var(--muted); }
+
+  /* Dialogs */
+  dialog { border:0; border-radius:14px; padding:0; width:min(680px, calc(100vw - 20px)); max-height:calc(100vh - 20px); }
+  dialog::backdrop { background:rgba(15,23,42,.55); }
+  dialog form { padding:18px; }
+  dialog h3 { margin:0 0 12px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
-  label { display:block; font-size:.85rem; color:var(--muted); }
-  input, select, textarea { width:100%; padding:8px; border:1px solid var(--line); border-radius:6px; font:inherit; background:#fff; }
-  .btn { border:0; background:var(--accent); color:#fff; padding:8px 14px; border-radius:6px; font:inherit; cursor:pointer; }
-  .btn.sec { background:#e5e7eb; color:var(--text); }
-  .btn.del { background:none; color:var(--bad); padding:4px 8px; }
-  .btn.sm { padding:4px 8px; font-size:.85rem; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
-  .tbl { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; font-size:.92rem; }
-  th, td { padding:8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
-  th { color:var(--muted); font-weight:600; }
-  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .stat { font-size:1.4rem; font-weight:700; }
-  .badge { display:inline-block; padding:1px 8px; border-radius:99px; font-size:.8rem; background:#e5e7eb; }
-  .s-received { background:#dbeafe; } .s-repairing { background:#fef3c7; }
-  .s-done { background:#dcfce7; } .s-delivered { background:#e5e7eb; color:var(--muted); }
-  .low { color:var(--bad); font-weight:700; }
-  .muted { color:var(--muted); font-size:.85rem; }
-  .notice { background:#fff7ed; border:1px solid #fed7aa; color:var(--warn); padding:10px; border-radius:8px; }
+  .grid .full { grid-column:1/-1; }
+  label { display:block; font-size:.82rem; color:var(--muted); }
+  label input, label select, label textarea { width:100%; margin-top:2px; }
+  fieldset { border:1px dashed #cbd5e1; border-radius:10px; margin:12px 0 0; padding:10px 12px; }
+  legend { font-size:.85rem; color:var(--muted); padding:0 6px; }
+  .info { background:#f1f5f9; border-radius:8px; padding:8px 12px; font-size:.9rem; margin-bottom:12px; }
+  .sumline { display:flex; justify-content:flex-end; gap:18px; flex-wrap:wrap; margin-top:10px; font-weight:700; }
+  .dlg-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:16px; }
+
+  /* Profit */
+  .profit { display:grid; grid-template-columns:270px 1fr; gap:16px; align-items:start; }
+  @media (max-width:800px) { .profit { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card h3 { margin-top:0; }
+  .card label { margin-bottom:10px; }
+  .quick { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .radio { display:flex; gap:6px; align-items:center; font-size:.9rem; color:var(--text); margin-bottom:6px; }
+  .radio input { width:auto; margin:0; }
+  .ptable td { font-size:1rem; padding:12px 14px; background:none !important; }
+  .ptable tr.net td { font-weight:700; font-size:1.15rem; border-top:2px solid var(--text); }
+  .period { font-weight:700; margin-bottom:10px; }
+
+  /* Settings */
+  .settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; max-width:1000px; }
+
+  /* Print */
+  #printArea { display:none; }
+  @media print {
+    body > *:not(#printArea) { display:none !important; }
+    #printArea { display:block; }
+    @page { margin:6mm; }
+  }
+  .receipt { width:72mm; font-size:12px; color:#000; line-height:1.45; }
+  .receipt h2 { text-align:center; margin:0; font-size:16px; }
+  .receipt .c { text-align:center; }
+  .receipt table { font-size:12px; width:100%; }
+  .receipt td { padding:1px 0; border:0; background:none !important; vertical-align:top; }
+  .receipt td.r { text-align:right; white-space:nowrap; }
+  .receipt hr { border:0; border-top:1px dashed #000; margin:6px 0; }
+  .receipt .big td { font-weight:700; font-size:13px; }
+  .report { color:#000; font-size:14px; max-width:180mm; }
+  .report table { width:100%; border-collapse:collapse; }
+  .report td { border:1px solid #000; padding:8px; background:none !important; }
 </style>
 </head>
 <body>
-<header>
-  <h1>📱 ဖုန်းပြင်ဆိုင် စာရင်းဇယား</h1>
-  <span id="netStatus">Online</span>
-  <button class="btn sm" id="installBtn" hidden>⬇ App အဖြစ် Install</button>
-</header>
-<nav>
-  <button data-tab="summary" class="active">အနှစ်ချုပ်</button>
-  <button data-tab="jobs">ပြင်ဆင်မှု စာရင်း</button>
-  <button data-tab="parts">ပစ္စည်းစာရင်း</button>
-  <button data-tab="backup">Backup</button>
-</nav>
+<div class="topbar">
+  <button class="back" id="backBtn" title="နောက်သို့" hidden>←</button>
+  <h1 id="title">ဖုန်းပြင်ဆိုင် စာရင်း</h1>
+  <span class="pill" id="netStatus">Online</span>
+  <button class="btn sm" id="installBtn" hidden>⬇ Install</button>
+</div>
+
 <main>
-  <!-- Summary -->
-  <section id="summary" class="active">
-    <div class="grid" id="stats"></div>
-    <div class="card" style="margin-top:16px">
-      <h3 style="margin-top:0">⚠️ လက်ကျန်နည်း ပစ္စည်းများ</h3>
-      <div id="lowStock"></div>
-    </div>
-    <div class="card">
-      <h3 style="margin-top:0">🔧 မပြီးသေးသော Job များ</h3>
-      <div id="openJobs"></div>
+  <!-- Home -->
+  <section class="view" id="v-home">
+    <div class="home-wrap">
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="">
+        <div><h2 id="brandName"></h2><div class="count">Mobile Phone Service Management</div></div>
+      </div>
+      <div class="tiles">
+        <button class="tile" data-go="received"><span class="ic">📥</span>ဖုန်းပြင်လက်ခံစာရင်း</button>
+        <button class="tile" data-go="completed"><span class="ic">✅</span>ပြုပြင်ပြီးစာရင်း</button>
+        <button class="tile" data-go="income"><span class="ic">💵</span>ဝင်ငွေစာရင်း</button>
+        <button class="tile" data-go="expenses"><span class="ic">👛</span>အသုံးစရိတ်စာရင်း</button>
+        <button class="tile" data-go="damaged"><span class="ic">💥</span>ပျက်စီးဆုံးရှုံးမှုစာရင်း</button>
+        <button class="tile" data-go="profit"><span class="ic">📊</span>အရှုံး/အမြတ်စာရင်း</button>
+        <button class="tile minor" data-go="parts"><span class="ic">📦</span>ပစ္စည်းလက်ကျန်</button>
+        <button class="tile minor" data-go="settings"><span class="ic">⚙️</span>ဆက်တင် / Backup</button>
+      </div>
+      <div class="today" id="todayStats"></div>
+      <div id="backupNotice"></div>
     </div>
   </section>
 
-  <!-- Jobs -->
-  <section id="jobs">
-    <form class="card" id="jobForm">
-      <h3 style="margin-top:0" id="jobFormTitle">Job အသစ် ထည့်ရန်</h3>
-      <input type="hidden" name="id">
-      <div class="grid">
-        <div><label>ရက်စွဲ</label><input type="date" name="date" required></div>
-        <div><label>ဖောက်သည်အမည်</label><input name="customer" required></div>
-        <div><label>ဖုန်းနံပါတ်</label><input name="phone" inputmode="tel"></div>
-        <div><label>ဖုန်းမော်ဒယ်</label><input name="model" placeholder="ဥပမာ iPhone 12" required></div>
-        <div style="grid-column:1/-1"><label>ပြဿနာ / ပြင်ရမည့်အချက်</label><input name="problem" required></div>
-        <div><label>ကျသင့်ငွေ (Ks)</label><input type="number" name="price" min="0" step="1" value="0"></div>
-        <div><label>စရံငွေ (Ks)</label><input type="number" name="deposit" min="0" step="1" value="0"></div>
-        <div><label>ပစ္စည်းကုန်ကျစရိတ် (Ks)</label><input type="number" name="cost" min="0" step="1" value="0"></div>
-        <div><label>အခြေအနေ</label>
-          <select name="status">
-            <option value="received">လက်ခံပြီး</option>
-            <option value="repairing">ပြင်နေဆဲ</option>
-            <option value="done">ပြီးပြီ</option>
-            <option value="delivered">ပေးအပ်ပြီး</option>
-          </select></div>
+  <!-- Generic list (received / completed / income / expenses / damaged / parts) -->
+  <section class="view" id="v-list">
+    <div class="stats" id="listStats"></div>
+    <div class="toolbar">
+      <span class="lbl">Search By:</span>
+      <select id="searchBy"></select>
+      <input id="searchText" placeholder="🔍 Search..." style="min-width:180px">
+      <span id="dateFilter" class="toolbar" style="margin:0">
+        <span class="lbl">ရက်စွဲ</span><input type="date" id="dFrom"><span class="lbl">မှ</span><input type="date" id="dTo">
+        <button class="btn sec sm" id="dClear" title="ရက်စွဲ filter ဖြုတ်">✕</button>
+      </span>
+      <span class="grow"></span>
+      <span class="count" id="listCount"></span>
+      <button class="btn green" id="addBtn">+ အသစ်ထည့်ရန်</button>
+      <button class="btn ghost" id="exportBtn">⬇ Export to Excel</button>
+    </div>
+    <div class="tbl"><table id="listTable"></table></div>
+  </section>
+
+  <!-- Profit / Loss -->
+  <section class="view" id="v-profit">
+    <div class="profit">
+      <div class="card">
+        <div class="quick">
+          <button class="btn sec sm" data-range="today">ယနေ့</button>
+          <button class="btn sec sm" data-range="month">ယခုလ</button>
+          <button class="btn sec sm" data-range="lastmonth">ပြီးခဲ့သည့်လ</button>
+          <button class="btn sec sm" data-range="year">ယခုနှစ်</button>
+        </div>
+        <label>Date From<input type="date" id="pFrom"></label>
+        <label>Date To<input type="date" id="pTo"></label>
+        <label class="radio"><input type="radio" name="pDmg" value="1" checked> ပျက်စီးဆုံးရှုံးမှုတန်ဖိုး အပါအဝင်</label>
+        <label class="radio"><input type="radio" name="pDmg" value="0"> ပျက်စီးဆုံးရှုံးမှုတန်ဖိုး မပါ</label>
+        <button class="btn" id="pPrint" style="width:100%;margin-top:10px">🖨 Print ထုတ်ရန်</button>
       </div>
-      <div class="row">
+      <div class="card">
+        <div class="period" id="pPeriod"></div>
+        <table class="ptable" id="pTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section class="view" id="v-settings">
+    <div class="settings">
+      <form class="card" id="setForm">
+        <h3>ဆိုင် အချက်အလက် (ဘောင်ချာမှာ ပေါ်မယ်)</h3>
+        <label>ဆိုင်အမည်<input name="shopName" required></label>
+        <label>ဖုန်းနံပါတ်<input name="phone"></label>
+        <label>လိပ်စာ<textarea name="address" rows="2"></textarea></label>
+        <label>ဘောင်ချာ အောက်ခြေမှတ်ချက်<textarea name="note" rows="2"></textarea></label>
+        <label>Service ဆရာ စာရင်း (တစ်ကြောင်းလျှင် တစ်ယောက်)<textarea name="technicians" rows="3"></textarea></label>
         <button class="btn" type="submit">သိမ်းမည်</button>
-        <button class="btn sec" type="button" id="jobCancel">ရှင်းမည်</button>
+        <span class="count" id="setSaved"></span>
+      </form>
+      <div class="card">
+        <h3>Backup</h3>
+        <p class="notice" style="margin-top:0">Data တွေကို ဒီစက်ရဲ့ browser ထဲမှာပဲ သိမ်းထားပါတယ်။ ဖုန်းပျောက်/ပျက် ရင် ပြန်ရဖို့
+          <b>ပုံမှန် (အပတ်စဉ်) Backup ဖိုင် ဒေါင်းထားပါ</b>။</p>
+        <div class="toolbar">
+          <button class="btn" id="backupBtn">⬇ Backup ဒေါင်းမည်</button>
+          <label class="btn sec" style="color:var(--text);font-size:1rem">⬆ Backup ပြန်ထည့်မည်
+            <input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
+        </div>
+        <p class="count" id="lastBackup"></p>
       </div>
-    </form>
-    <div class="card">
-      <div class="row" style="margin-top:0">
-        <input id="jobSearch" placeholder="🔍 အမည်၊ ဖုန်း၊ မော်ဒယ် ရှာရန်" style="flex:1;min-width:180px">
-        <select id="jobFilter" style="width:auto">
-          <option value="">အားလုံး</option>
-          <option value="received">လက်ခံပြီး</option>
-          <option value="repairing">ပြင်နေဆဲ</option>
-          <option value="done">ပြီးပြီ</option>
-          <option value="delivered">ပေးအပ်ပြီး</option>
-        </select>
-        <button class="btn sec" id="jobCsv">CSV ထုတ်မည်</button>
-      </div>
-      <div class="tbl" style="margin-top:10px"><table id="jobTable"></table></div>
-    </div>
-  </section>
-
-  <!-- Parts -->
-  <section id="parts">
-    <form class="card" id="partForm">
-      <h3 style="margin-top:0" id="partFormTitle">ပစ္စည်းအသစ် ထည့်ရန်</h3>
-      <input type="hidden" name="id">
-      <div class="grid">
-        <div style="grid-column:1/-1"><label>ပစ္စည်းအမည်</label><input name="name" placeholder="ဥပမာ iPhone 12 Screen" required></div>
-        <div><label>အရေအတွက်</label><input type="number" name="qty" min="0" step="1" value="0"></div>
-        <div><label>သတိပေးရမည့် အနည်းဆုံး</label><input type="number" name="min" min="0" step="1" value="2"></div>
-        <div><label>ဝယ်ဈေး (Ks)</label><input type="number" name="buy" min="0" step="1" value="0"></div>
-        <div><label>ရောင်းဈေး (Ks)</label><input type="number" name="sell" min="0" step="1" value="0"></div>
-      </div>
-      <div class="row">
-        <button class="btn" type="submit">သိမ်းမည်</button>
-        <button class="btn sec" type="button" id="partCancel">ရှင်းမည်</button>
-      </div>
-    </form>
-    <div class="card">
-      <div class="row" style="margin-top:0">
-        <input id="partSearch" placeholder="🔍 ပစ္စည်း ရှာရန်" style="flex:1;min-width:180px">
-        <button class="btn sec" id="partCsv">CSV ထုတ်မည်</button>
-      </div>
-      <div class="tbl" style="margin-top:10px"><table id="partTable"></table></div>
-    </div>
-  </section>
-
-  <!-- Backup -->
-  <section id="backup">
-    <div class="card">
-      <p class="notice">Data တွေကို ဒီ browser ထဲမှာပဲ သိမ်းထားပါတယ်။ Browser data ဖျက်ရင် ပျောက်သွားနိုင်လို့
-        <b>ပုံမှန် Backup ဖိုင် download လုပ်ထားပါ</b>။</p>
-      <div class="row">
-        <button class="btn" id="backupBtn">Backup (JSON) ဒေါင်းမည်</button>
-        <label class="btn sec" style="color:var(--text)">Backup ပြန်ထည့်မည်
-          <input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
-      </div>
-      <p class="muted" id="lastBackup"></p>
     </div>
   </section>
 </main>
 
-<script>
-const KEY = 'phoneServiceData_v1';
-const STATUS = { received:'လက်ခံပြီး', repairing:'ပြင်နေဆဲ', done:'ပြီးပြီ', delivered:'ပေးအပ်ပြီး' };
-let db = load();
+<!-- Job (receive) dialog -->
+<dialog id="jobDlg">
+  <form id="jobForm">
+    <h3 id="jobTitle">ဖုန်းလက်ခံ — အသစ်</h3>
+    <input type="hidden" name="id">
+    <div class="grid">
+      <label>ဖုန်းအပ်သည့်ရက်<input type="date" name="date" required></label>
+      <label>အမည်<input name="customer" required></label>
+      <label>ဖုန်းနံပါတ်<input name="phone" inputmode="tel"></label>
+      <label>ဖုန်းအမျိုးအစား<input name="model" required placeholder="ဥပမာ redmi note 13"></label>
+      <label>IMEI<input name="imei" inputmode="numeric"></label>
+      <label>Service ဆရာ<input name="tech" list="techList"></label>
+      <label class="full">အကြောင်းအရာ (ပြဿနာ)<input name="problem" required placeholder="ဥပမာ tlcd, bt, no power"></label>
+      <label>ခန့်မှန်းကုန်ကျငွေ (Ks)<input type="number" name="estimate" min="0" step="1" value="0"></label>
+      <label>စရံငွေ (Ks)<input type="number" name="deposit" min="0" step="1" value="0"></label>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
+      <button class="btn ghost" type="submit" value="print">သိမ်းပြီး 🖨 Print</button>
+      <button class="btn" type="submit" value="save">သိမ်းမည်</button>
+    </div>
+  </form>
+</dialog>
 
-function load() {
-  try {
-    const d = JSON.parse(localStorage.getItem(KEY));
-    if (d && Array.isArray(d.jobs) && Array.isArray(d.parts)) return d;
-  } catch (e) {}
-  return { jobs: [], parts: [], lastBackup: null };
+<!-- Done (complete / pickup) dialog -->
+<dialog id="doneDlg">
+  <form id="doneForm">
+    <h3>▶ ပြင်ပြီး / ဖုန်းထုတ်ယူ</h3>
+    <input type="hidden" name="id">
+    <div class="info" id="doneInfo"></div>
+    <div class="grid">
+      <label>ဖုန်းထုတ်ယူသည့်ရက်<input type="date" name="pickupDate" required></label>
+      <label>ပြုပြင်မှုအခြေအနေ
+        <select name="result"><option value="success">အောင်မြင်</option><option value="fail">မအောင်မြင်</option></select></label>
+      <label class="full">လဲထည့်သည့်ပစ္စည်း<input name="partName" placeholder="ဥပမာ tlcd, battery"></label>
+      <label>ပစ္စည်းဖိုး (Ks)<input type="number" name="partFee" min="0" step="1" value="0"></label>
+      <label>လက်ခ (Ks)<input type="number" name="serviceFee" min="0" step="1" value="0"></label>
+    </div>
+    <div class="sumline" id="doneSum"></div>
+    <fieldset>
+      <legend>ပျက်စီးဆုံးရှုံးမှု (ပြင်ရင်း ပစ္စည်းပျက်သွားမှ ဖြည့်ပါ)</legend>
+      <div class="grid">
+        <label class="full">ပျက်စီးခဲ့သည့်ပစ္စည်း<input name="dPart"></label>
+        <label>တန်ဖိုး (Ks)<input type="number" name="dValue" min="0" step="1" value="0"></label>
+        <label>အရေအတွက်<input type="number" name="dQty" min="0" step="1" value="1"></label>
+      </div>
+    </fieldset>
+    <div class="dlg-actions">
+      <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
+      <button class="btn ghost" type="submit" value="print">သိမ်းပြီး 🖨 Print</button>
+      <button class="btn green" type="submit" value="save">သိမ်းမည်</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Expense dialog -->
+<dialog id="expDlg">
+  <form id="expForm">
+    <h3>ဆိုင်အသုံးစရိတ်</h3>
+    <input type="hidden" name="id">
+    <div class="grid">
+      <label>ရက်စွဲ<input type="date" name="date" required></label>
+      <label>ငွေပမာဏ (Ks)<input type="number" name="amount" min="0" step="1" required></label>
+      <label class="full">အကြောင်းအရာ<input name="desc" required placeholder="ဥပမာ tinner/glue"></label>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
+      <button class="btn" type="submit">သိမ်းမည်</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Part dialog -->
+<dialog id="partDlg">
+  <form id="partForm">
+    <h3>ပစ္စည်း</h3>
+    <input type="hidden" name="id">
+    <div class="grid">
+      <label class="full">ပစ္စည်းအမည်<input name="name" required placeholder="ဥပမာ redmi 13c tlcd"></label>
+      <label>လက်ကျန်<input type="number" name="qty" min="0" step="1" value="0"></label>
+      <label>သတိပေးရမည့် အနည်းဆုံး<input type="number" name="min" min="0" step="1" value="1"></label>
+      <label>ဝယ်ဈေး (Ks)<input type="number" name="buy" min="0" step="1" value="0"></label>
+      <label>ရောင်းဈေး (Ks)<input type="number" name="sell" min="0" step="1" value="0"></label>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
+      <button class="btn" type="submit">သိမ်းမည်</button>
+    </div>
+  </form>
+</dialog>
+
+<datalist id="techList"></datalist>
+<div id="printArea"></div>
+
+<script>
+// ================= Storage =================
+const KEY = 'phoneServiceData_v2', KEY_V1 = 'phoneServiceData_v1';
+const $ = s => document.querySelector(s);
+
+function blank() {
+  return { version: 2, nextVr: 1001, lastBackup: null, jobs: [], expenses: [], parts: [],
+    settings: { shopName: 'ဖုန်းပြင်ဆိုင်', phone: '', address: '',
+      note: 'ဖုန်းပြင်ပြီးကြောင်း အကြောင်းကြားပြီး ၁ လအတွင်း လာရောက်ထုတ်ယူပါရန်။', technicians: [] } };
 }
+// v1 (ပထမ version) data → v2
+function migrateV1(d) {
+  const out = blank(); let vr = 1001;
+  out.parts = Array.isArray(d.parts) ? d.parts : [];
+  out.jobs = (d.jobs || []).slice().reverse().map(j => {
+    const done = j.status === 'delivered' || j.status === 'done';
+    return { id: j.id || uid(), vr: vr++, date: j.date, customer: j.customer, phone: j.phone || '', model: j.model,
+      imei: '', problem: j.problem, tech: '', estimate: +j.price || 0, deposit: +j.deposit || 0,
+      status: done ? 'done' : 'open', result: 'success', pickupDate: done ? (j.deliveredAt || j.date) : '',
+      partName: '', partFee: done ? (+j.cost || 0) : 0,
+      serviceFee: done ? Math.max(0, (+j.price || 0) - (+j.cost || 0)) : 0, damage: null };
+  });
+  out.nextVr = vr; out.lastBackup = d.lastBackup || null;
+  return out;
+}
+function normalize(d) {
+  if (d && d.version === 2 && Array.isArray(d.jobs)) {
+    const b = blank();
+    return { ...b, ...d, expenses: d.expenses || [], parts: d.parts || [], settings: { ...b.settings, ...d.settings } };
+  }
+  if (d && Array.isArray(d.jobs)) return migrateV1(d);
+  return null;
+}
+function load() {
+  try { const d = normalize(JSON.parse(localStorage.getItem(KEY))); if (d) return d; } catch (e) {}
+  try { const d = normalize(JSON.parse(localStorage.getItem(KEY_V1))); if (d) return d; } catch (e) {}
+  return blank();
+}
+let db = load();
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
   catch (e) { alert('သိမ်းလို့ မရပါ — Backup ဒေါင်းထားပါ။'); }
-  render();
+  route();
 }
+
+// ================= Helpers =================
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ks = n => (Number(n) || 0).toLocaleString('en-US') + ' Ks';
-const today = () => new Date().toISOString().slice(0, 10);
-
-// ---- Tabs ----
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
-  document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === b.dataset.tab));
-});
-
-// ---- Generic form helpers ----
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const n = v => Number(v) || 0;
+const num = v => n(v).toLocaleString('en-US');
+const ks = v => num(v) + ' Ks';
+function localISO(d) { d = new Date(d); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+const today = () => localISO(new Date());
+const fmtD = s => s ? s.split('-').reverse().join('-') : '';
+const sum = (arr, f) => arr.reduce((s, x) => s + n(f(x)), 0);
+const total = j => n(j.partFee) + n(j.serviceFee);
+const dmg = j => j.damage ? n(j.damage.value) * n(j.damage.qty) : 0;
+const byId = (arr, id) => arr.find(x => x.id === id);
 function formData(form) {
   const o = Object.fromEntries(new FormData(form));
-  form.querySelectorAll('input[type=number]').forEach(i => o[i.name] = Number(i.value) || 0);
+  form.querySelectorAll('input[type=number]').forEach(i => o[i.name] = n(i.value));
   return o;
 }
-function fillForm(form, obj) { for (const [k, v] of Object.entries(obj)) if (form.elements[k]) form.elements[k].value = v; }
+function fillForm(form, obj) {
+  for (const el of form.elements) if (el.name && el.name in obj) el.value = obj[el.name] ?? '';
+}
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
 
-// ---- Jobs ----
-const jobForm = document.getElementById('jobForm');
-function resetJob() { jobForm.reset(); jobForm.elements.id.value = ''; jobForm.elements.date.value = today();
-  document.getElementById('jobFormTitle').textContent = 'Job အသစ် ထည့်ရန်'; }
-jobForm.onsubmit = e => {
-  e.preventDefault();
-  const j = formData(jobForm);
-  if (j.id) { const i = db.jobs.findIndex(x => x.id === j.id); db.jobs[i] = { ...db.jobs[i], ...j }; }
-  else db.jobs.unshift({ ...j, id: uid() });
-  if (j.status === 'delivered') { const x = db.jobs.find(x => x.id === (j.id || db.jobs[0].id)); x.deliveredAt ||= today(); }
-  resetJob(); save();
+// ================= Column definitions =================
+const C = {
+  vr:         { label: 'Vr No.', get: r => r.vr, cls: 'nowrap' },
+  customer:   { label: 'အမည်', get: r => r.customer },
+  phone:      { label: 'ဖုန်းနံပါတ်', get: r => r.phone, cls: 'nowrap' },
+  model:      { label: 'ဖုန်းအမျိုးအစား', get: r => r.model },
+  imei:       { label: 'IMEI', get: r => r.imei },
+  problem:    { label: 'အကြောင်းအရာ', get: r => r.problem },
+  tech:       { label: 'Service ဆရာ', get: r => r.tech },
+  estimate:   { label: 'ခန့်မှန်းကုန်ကျငွေ', get: r => r.estimate, money: true },
+  deposit:    { label: 'စရံ', get: r => r.deposit, money: true },
+  date:       { label: 'ဖုန်းအပ်သည့်ရက်', get: r => r.date, date: true },
+  pickup:     { label: 'ဖုန်းထုတ်ယူသည့်ရက်', get: r => r.pickupDate, date: true },
+  result:     { label: 'ပြုပြင်မှုအခြေအနေ', get: r => r.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်',
+                html: r => `<span class="${r.result === 'fail' ? 'bad' : 'ok'}">${r.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်'}</span>` },
+  partName:   { label: 'လဲထည့်သည့်ပစ္စည်း', get: r => r.partName },
+  partFee:    { label: 'ပစ္စည်းဖိုး', get: r => r.partFee, money: true },
+  serviceFee: { label: 'လက်ခ', get: r => r.serviceFee, money: true },
+  total:      { label: 'စုစုပေါင်း', get: r => total(r), money: true },
+  dPart:      { label: 'ပျက်စီးခဲ့သည့်ပစ္စည်း', get: r => r.damage?.part },
+  dValue:     { label: 'တန်ဖိုး', get: r => r.damage?.value, money: true },
+  dQty:       { label: 'အရေအတွက်', get: r => r.damage?.qty, num: true },
+  dAmount:    { label: 'ငွေပမာဏ', get: r => dmg(r), money: true },
+  eDate:      { label: 'ရက်စွဲ', get: r => r.date, date: true },
+  eDesc:      { label: 'အကြောင်းအရာ', get: r => r.desc },
+  eAmount:    { label: 'ငွေပမာဏ', get: r => r.amount, money: true },
+  pName:      { label: 'ပစ္စည်းအမည်', get: r => r.name },
+  pQty:       { label: 'လက်ကျန်', get: r => r.qty, num: true,
+                html: r => `<button class="ib" onclick="adjQty('${r.id}',-1)">➖</button>
+                  <span class="${n(r.qty) <= n(r.min) ? 'low' : ''}">${num(r.qty)}</span>
+                  <button class="ib" onclick="adjQty('${r.id}',1)">➕</button>` },
+  pMin:       { label: 'အနည်းဆုံး', get: r => r.min, num: true },
+  pBuy:       { label: 'ဝယ်ဈေး', get: r => r.buy, money: true },
+  pSell:      { label: 'ရောင်းဈေး', get: r => r.sell, money: true },
+  pValue:     { label: 'တန်ဖိုး', get: r => n(r.buy) * n(r.qty), money: true },
 };
-document.getElementById('jobCancel').onclick = resetJob;
-document.getElementById('jobSearch').oninput = renderJobs;
-document.getElementById('jobFilter').onchange = renderJobs;
+const ib = (icon, title, fn) => `<button class="ib" title="${title}" onclick="${fn}">${icon}</button>`;
+const doneJobs = () => db.jobs.filter(j => j.status === 'done');
 
-function editJob(id) {
-  fillForm(jobForm, db.jobs.find(j => j.id === id));
-  document.getElementById('jobFormTitle').textContent = 'Job ပြင်ဆင်ရန်';
-  jobForm.scrollIntoView({ behavior: 'smooth' });
-}
-function setStatus(id, s) {
-  const j = db.jobs.find(j => j.id === id); j.status = s;
-  if (s === 'delivered') j.deliveredAt ||= today();
-  save();
-}
-function delJob(id) { if (confirm('ဒီ Job ကို ဖျက်မှာ သေချာလား?')) { db.jobs = db.jobs.filter(j => j.id !== id); save(); } }
-
-function renderJobs() {
-  const q = document.getElementById('jobSearch').value.toLowerCase();
-  const f = document.getElementById('jobFilter').value;
-  const rows = db.jobs.filter(j => (!f || j.status === f) &&
-    (!q || [j.customer, j.phone, j.model, j.problem].join(' ').toLowerCase().includes(q)));
-  document.getElementById('jobTable').innerHTML = rows.length ? `
-    <tr><th>ရက်စွဲ</th><th>ဖောက်သည်</th><th>ဖုန်း / ပြဿနာ</th><th class="num">ကျသင့်ငွေ</th><th class="num">ကျန်ငွေ</th><th>အခြေအနေ</th><th></th></tr>
-    ${rows.map(j => `<tr>
-      <td>${esc(j.date)}</td>
-      <td>${esc(j.customer)}<div class="muted">${esc(j.phone)}</div></td>
-      <td>${esc(j.model)}<div class="muted">${esc(j.problem)}</div></td>
-      <td class="num">${ks(j.price)}</td>
-      <td class="num">${ks(j.price - j.deposit)}</td>
-      <td><select class="sm" onchange="setStatus('${j.id}',this.value)">
-        ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === j.status ? 'selected' : ''}>${v}</option>`).join('')}
-      </select></td>
-      <td><button class="btn sec sm" onclick="editJob('${j.id}')">ပြင်</button>
-          <button class="btn del sm" onclick="delJob('${j.id}')">ဖျက်</button></td>
-    </tr>`).join('')}` : '<tr><td class="muted">စာရင်း မရှိသေးပါ</td></tr>';
-}
-
-// ---- Parts ----
-const partForm = document.getElementById('partForm');
-function resetPart() { partForm.reset(); partForm.elements.id.value = '';
-  document.getElementById('partFormTitle').textContent = 'ပစ္စည်းအသစ် ထည့်ရန်'; }
-partForm.onsubmit = e => {
-  e.preventDefault();
-  const p = formData(partForm);
-  if (p.id) { const i = db.parts.findIndex(x => x.id === p.id); db.parts[i] = { ...db.parts[i], ...p }; }
-  else db.parts.push({ ...p, id: uid() });
-  resetPart(); save();
+// ================= List views =================
+const VIEWS = {
+  received: {
+    title: 'ဖုန်းပြင်လက်ခံစာရင်း', dateKey: 'date', add: () => openJob(),
+    rows: () => db.jobs.filter(j => j.status === 'open'),
+    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.estimate, C.date],
+    acts: r => ib('🖨', 'လက်ခံဘောင်ချာ Print', `printJob('${r.id}')`) + ib('▶', 'ပြင်ပြီး / ထုတ်ယူ', `openDone('${r.id}')`) +
+               ib('✏️', 'ပြင်ရန်', `openJob('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
+    stats: rows => [['gray', 'လက်ခံထားဆဲ ဖုန်း', rows.length + ' လုံး'], ['blue', 'ခန့်မှန်းငွေ စုစုပေါင်း', ks(sum(rows, r => r.estimate))],
+                    ['purple', 'စရံငွေ စုစုပေါင်း', ks(sum(rows, r => r.deposit))]],
+  },
+  completed: {
+    title: 'ဖုန်းပြုပြင်ပြီးသောစာရင်း', dateKey: 'pickupDate',
+    rows: doneJobs,
+    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.date, C.pickup, C.result],
+    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('💰', 'ငွေ/ထုတ်ယူ ပြင်ရန်', `openDone('${r.id}')`) +
+               ib('✏️', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('↩️', 'လက်ခံစာရင်းသို့ ပြန်ပို့', `undoDone('${r.id}')`) +
+               ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
+    stats: rows => [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['purple', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
+                    ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))], ['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))]],
+  },
+  income: {
+    title: 'ဝင်ငွေစာရင်း', dateKey: 'pickupDate',
+    rows: doneJobs,
+    cols: [C.vr, C.customer, C.model, C.problem, C.date, C.pickup, C.partName, C.partFee, C.serviceFee, C.total],
+    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('💰', 'ငွေ ပြင်ရန်', `openDone('${r.id}')`),
+    stats: rows => [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['red', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
+                    ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))]],
+  },
+  expenses: {
+    title: 'ဆိုင်အသုံးစရိတ်စာရင်း', dateKey: 'date', add: () => openExp(), defaultSearch: 1,
+    rows: () => db.expenses,
+    cols: [C.eDate, C.eDesc, C.eAmount],
+    acts: r => ib('✏️', 'ပြင်ရန်', `openExp('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delExp('${r.id}')`),
+    stats: rows => [['red', 'အသုံးစရိတ်စုစုပေါင်း', ks(sum(rows, r => r.amount))]],
+  },
+  damaged: {
+    title: 'ပျက်စီးဆုံးရှုံးမှုစာရင်း', dateKey: 'pickupDate',
+    rows: () => doneJobs().filter(j => dmg(j) > 0),
+    cols: [C.vr, C.model, C.problem, C.dPart, C.dValue, C.dQty, C.dAmount, C.tech, C.date, C.pickup],
+    acts: r => ib('💰', 'ပြင်ရန်', `openDone('${r.id}')`),
+    stats: rows => [['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))]],
+  },
+  parts: {
+    title: 'ပစ္စည်းလက်ကျန်', add: () => openPart(),
+    rows: () => db.parts.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))),
+    cols: [C.pName, C.pQty, C.pMin, C.pBuy, C.pSell, C.pValue],
+    acts: r => ib('✏️', 'ပြင်ရန်', `openPart('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delPart('${r.id}')`),
+    stats: rows => [['blue', 'Stock တန်ဖိုး', ks(sum(rows, r => n(r.buy) * n(r.qty)))],
+                    ['red', 'လက်ကျန်နည်း ပစ္စည်း', rows.filter(r => n(r.qty) <= n(r.min)).length + ' မျိုး']],
+  },
 };
-document.getElementById('partCancel').onclick = resetPart;
-document.getElementById('partSearch').oninput = renderParts;
 
-function editPart(id) {
-  fillForm(partForm, db.parts.find(p => p.id === id));
-  document.getElementById('partFormTitle').textContent = 'ပစ္စည်း ပြင်ဆင်ရန်';
-  partForm.scrollIntoView({ behavior: 'smooth' });
+let cur = 'home';
+function searchText(c, r) { const v = c.get(r); return (c.date ? fmtD(v) + ' ' : '') + String(v ?? ''); }
+
+function setupList(v) {
+  const cfg = VIEWS[v];
+  const sel = $('#searchBy');
+  sel.innerHTML = cfg.cols.map((c, i) => `<option value="${i}">${c.label}</option>`).join('');
+  sel.value = cfg.defaultSearch || 0;
+  $('#searchText').value = ''; $('#dFrom').value = ''; $('#dTo').value = '';
+  $('#dateFilter').hidden = !cfg.dateKey;
+  $('#addBtn').hidden = !cfg.add;
 }
-function adjQty(id, d) { const p = db.parts.find(p => p.id === id); p.qty = Math.max(0, p.qty + d); save(); }
-function delPart(id) { if (confirm('ဒီပစ္စည်းကို ဖျက်မှာ သေချာလား?')) { db.parts = db.parts.filter(p => p.id !== id); save(); } }
+function filteredRows() {
+  const cfg = VIEWS[cur];
+  const col = cfg.cols[$('#searchBy').value] || cfg.cols[0];
+  const q = $('#searchText').value.trim().toLowerCase();
+  const from = $('#dFrom').value, to = $('#dTo').value;
+  let rows = cfg.rows().filter(r => {
+    if (cfg.dateKey) { const d = r[cfg.dateKey] || ''; if ((from && d < from) || (to && d > to)) return false; }
+    return !q || searchText(col, r).toLowerCase().includes(q);
+  });
+  if (cfg.dateKey) rows = rows.slice().sort((a, b) =>
+    String(b[cfg.dateKey]).localeCompare(String(a[cfg.dateKey])) || n(b.vr) - n(a.vr));
+  return rows;
+}
+function renderList() {
+  const cfg = VIEWS[cur], rows = filteredRows();
+  $('#listStats').innerHTML = cfg.stats(rows).map(([c, l, v]) =>
+    `<div class="stat ${c}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  $('#listCount').textContent = rows.length + ' ခု';
+  const cellCls = c => c.money || c.num ? 'num' : c.date ? 'nowrap' : (c.cls || '');
+  const cell = (c, r) => c.html ? c.html(r) : c.money ? num(c.get(r)) : c.date ? fmtD(c.get(r)) : esc(c.get(r));
+  $('#listTable').innerHTML =
+    `<thead><tr>${cfg.cols.map(c => `<th class="${c.money || c.num ? 'num' : ''}">${c.label}</th>`).join('')}<th>Actions</th></tr></thead>
+     <tbody>${rows.length ? rows.map(r => `<tr>${cfg.cols.map(c => `<td class="${cellCls(c)}">${cell(c, r)}</td>`).join('')}
+       <td class="acts">${cfg.acts(r)}</td></tr>`).join('')
+       : `<tr><td colspan="${cfg.cols.length + 1}" class="empty">စာရင်း မရှိပါ</td></tr>`}</tbody>`;
+}
+['#searchBy', '#searchText', '#dFrom', '#dTo'].forEach(s => $(s).addEventListener('input', renderList));
+$('#dClear').onclick = () => { $('#dFrom').value = ''; $('#dTo').value = ''; renderList(); };
+$('#addBtn').onclick = () => VIEWS[cur].add();
+$('#exportBtn').onclick = () => {
+  const cfg = VIEWS[cur], rows = filteredRows();
+  const val = (c, r) => c.date ? fmtD(c.get(r)) : c.get(r);
+  download(`${cfg.title}-${today()}.csv`, csv([cfg.cols.map(c => c.label), ...rows.map(r => cfg.cols.map(c => val(c, r)))]), 'text/csv');
+};
 
-function renderParts() {
-  const q = document.getElementById('partSearch').value.toLowerCase();
-  const rows = db.parts.filter(p => !q || p.name.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name));
-  document.getElementById('partTable').innerHTML = rows.length ? `
-    <tr><th>ပစ္စည်း</th><th class="num">လက်ကျန်</th><th class="num">ဝယ်ဈေး</th><th class="num">ရောင်းဈေး</th><th class="num">တန်ဖိုး</th><th></th></tr>
-    ${rows.map(p => `<tr>
-      <td>${esc(p.name)}</td>
-      <td class="num ${p.qty <= p.min ? 'low' : ''}">
-        <button class="btn sec sm" onclick="adjQty('${p.id}',-1)">−</button> ${p.qty}
-        <button class="btn sec sm" onclick="adjQty('${p.id}',1)">+</button></td>
-      <td class="num">${ks(p.buy)}</td><td class="num">${ks(p.sell)}</td>
-      <td class="num">${ks(p.buy * p.qty)}</td>
-      <td><button class="btn sec sm" onclick="editPart('${p.id}')">ပြင်</button>
-          <button class="btn del sm" onclick="delPart('${p.id}')">ဖျက်</button></td>
-    </tr>`).join('')}` : '<tr><td class="muted">စာရင်း မရှိသေးပါ</td></tr>';
+// ================= Jobs =================
+function techOptions() { $('#techList').innerHTML = db.settings.technicians.map(t => `<option value="${esc(t)}">`).join(''); }
+function openJob(id) {
+  const f = $('#jobForm'); f.reset();
+  const j = id ? byId(db.jobs, id) : null;
+  fillForm(f, j || { id: '', date: today(), estimate: 0, deposit: 0, tech: db.settings.technicians[0] || '' });
+  $('#jobTitle').textContent = j ? `ဖုန်းလက်ခံ — ပြင်ရန် (Vr ${j.vr})` : 'ဖုန်းလက်ခံ — အသစ်';
+  techOptions(); $('#jobDlg').showModal();
+}
+$('#jobForm').onsubmit = e => {
+  e.preventDefault();
+  const d = formData(e.target), print = e.submitter?.value === 'print';
+  let j;
+  if (d.id) { j = byId(db.jobs, d.id); Object.assign(j, d); }
+  else { j = { ...d, id: uid(), vr: db.nextVr++, status: 'open', damage: null }; db.jobs.push(j); }
+  if (d.tech && !db.settings.technicians.includes(d.tech)) db.settings.technicians.push(d.tech);
+  $('#jobDlg').close(); save();
+  if (print) printJob(j.id);
+};
+function delJob(id) {
+  const j = byId(db.jobs, id);
+  if (confirm(`Vr ${j.vr} (${j.customer}) ကို ဖျက်မှာ သေချာလား?`)) { db.jobs = db.jobs.filter(x => x.id !== id); save(); }
+}
+function undoDone(id) {
+  const j = byId(db.jobs, id);
+  if (confirm(`Vr ${j.vr} ကို လက်ခံစာရင်းသို့ ပြန်ပို့မလား? (ငွေစာရင်းထဲကပါ ဖယ်ရှားမယ်)`)) { j.status = 'open'; save(); }
 }
 
-// ---- Summary ----
-function renderSummary() {
-  const t = today(), m = t.slice(0, 7);
-  const deliv = db.jobs.filter(j => j.status === 'delivered');
-  const sum = (arr, f) => arr.reduce((s, x) => s + (Number(f(x)) || 0), 0);
-  const todayJobs = deliv.filter(j => (j.deliveredAt || j.date) === t);
-  const monthJobs = deliv.filter(j => (j.deliveredAt || j.date).startsWith(m));
-  const open = db.jobs.filter(j => j.status !== 'delivered');
-  const stockVal = sum(db.parts, p => p.buy * p.qty);
-  const stats = [
-    ['ယနေ့ ဝင်ငွေ', ks(sum(todayJobs, j => j.price))],
-    ['ယခုလ ဝင်ငွေ', ks(sum(monthJobs, j => j.price))],
-    ['ယခုလ အမြတ် (ခန့်မှန်း)', ks(sum(monthJobs, j => j.price - j.cost))],
-    ['မပြီးသေး Job', open.length],
-    ['ပြီးလို့ ယူဖို့စောင့်', db.jobs.filter(j => j.status === 'done').length],
-    ['Stock တန်ဖိုး', ks(stockVal)],
-  ];
-  document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
-    `<div class="card" style="margin:0"><div class="muted">${l}</div><div class="stat">${v}</div></div>`).join('');
-
-  const low = db.parts.filter(p => p.qty <= p.min);
-  document.getElementById('lowStock').innerHTML = low.length
-    ? low.map(p => `<div>${esc(p.name)} — <span class="low">${p.qty} ခု</span></div>`).join('')
-    : '<span class="muted">မရှိပါ ✅</span>';
-  document.getElementById('openJobs').innerHTML = open.length
-    ? open.map(j => `<div><span class="badge s-${j.status}">${STATUS[j.status]}</span>
-        ${esc(j.customer)} — ${esc(j.model)} <span class="muted">(${esc(j.date)})</span></div>`).join('')
-    : '<span class="muted">မရှိပါ ✅</span>';
+// ---- Done dialog ----
+function openDone(id) {
+  const j = byId(db.jobs, id), f = $('#doneForm'); f.reset();
+  fillForm(f, { id, pickupDate: j.pickupDate || today(), result: j.result || 'success', partName: j.partName || '',
+    partFee: j.partFee || 0, serviceFee: j.serviceFee ?? 0,
+    dPart: j.damage?.part || '', dValue: j.damage?.value || 0, dQty: j.damage?.qty || 1 });
+  $('#doneInfo').innerHTML = `<b>Vr ${esc(j.vr)}</b> · ${esc(j.customer)} · ${esc(j.model)} · ${esc(j.problem)}<br>
+    <span class="count">ခန့်မှန်းငွေ ${ks(j.estimate)} · စရံ ${ks(j.deposit)}</span>`;
+  updDoneSum(); $('#doneDlg').showModal();
 }
+function updDoneSum() {
+  const f = $('#doneForm'), j = byId(db.jobs, f.elements.id.value); if (!j) return;
+  const t = n(f.elements.partFee.value) + n(f.elements.serviceFee.value);
+  $('#doneSum').innerHTML = `<span>စုစုပေါင်း: ${ks(t)}</span>` + (n(j.deposit) ? `<span>ကျန်ငွေ: ${ks(t - n(j.deposit))}</span>` : '');
+}
+$('#doneForm').addEventListener('input', updDoneSum);
+$('#doneForm').onsubmit = e => {
+  e.preventDefault();
+  const d = formData(e.target), j = byId(db.jobs, d.id), print = e.submitter?.value === 'print';
+  Object.assign(j, { status: 'done', pickupDate: d.pickupDate, result: d.result, partName: d.partName,
+    partFee: d.partFee, serviceFee: d.serviceFee,
+    damage: d.dPart || d.dValue ? { part: d.dPart, value: d.dValue, qty: d.dQty || 1 } : null });
+  $('#doneDlg').close(); save();
+  if (print) printJob(j.id);
+};
 
-// ---- CSV / Backup ----
+// ================= Expenses / Parts =================
+function openExp(id) {
+  const f = $('#expForm'); f.reset();
+  fillForm(f, id ? byId(db.expenses, id) : { id: '', date: today() });
+  $('#expDlg').showModal();
+}
+$('#expForm').onsubmit = e => {
+  e.preventDefault(); const d = formData(e.target);
+  if (d.id) Object.assign(byId(db.expenses, d.id), d); else db.expenses.push({ ...d, id: uid() });
+  $('#expDlg').close(); save();
+};
+function delExp(id) { if (confirm('ဒီအသုံးစရိတ်ကို ဖျက်မှာ သေချာလား?')) { db.expenses = db.expenses.filter(x => x.id !== id); save(); } }
+
+function openPart(id) {
+  const f = $('#partForm'); f.reset();
+  fillForm(f, id ? byId(db.parts, id) : { id: '', qty: 0, min: 1, buy: 0, sell: 0 });
+  $('#partDlg').showModal();
+}
+$('#partForm').onsubmit = e => {
+  e.preventDefault(); const d = formData(e.target);
+  if (d.id) Object.assign(byId(db.parts, d.id), d); else db.parts.push({ ...d, id: uid() });
+  $('#partDlg').close(); save();
+};
+function adjQty(id, delta) { const p = byId(db.parts, id); p.qty = Math.max(0, n(p.qty) + delta); save(); }
+function delPart(id) { if (confirm('ဒီပစ္စည်းကို ဖျက်မှာ သေချာလား?')) { db.parts = db.parts.filter(x => x.id !== id); save(); } }
+
+// ================= Profit / Loss =================
+function calcProfit(from, to, incDmg) {
+  const inR = d => d && (!from || d >= from) && (!to || d <= to);
+  const done = doneJobs().filter(j => inR(j.pickupDate));
+  const income = sum(done, total), parts = sum(done, j => j.partFee), service = income - parts;
+  const damaged = sum(done, dmg), expenses = sum(db.expenses.filter(e => inR(e.date)), e => e.amount);
+  return { income, parts, service, damaged, expenses, incDmg, net: service - (incDmg ? damaged : 0) - expenses, count: done.length };
+}
+function profitRows(p) {
+  return [['ဝင်ငွေစုစုပေါင်း (+)', p.income, '#15803d'], ['လဲထည့်ခဲ့သည့်ပစ္စည်းဖိုးစုစုပေါင်း (−)', p.parts, '#b45309'],
+    ['လက်ခစုစုပေါင်း (=)', p.service, '#7c3aed'],
+    ...(p.incDmg ? [['ပျက်စီးဆုံးရှုံးမှုတန်ဖိုးစုစုပေါင်း (−)', p.damaged, '#dc2626']] : []),
+    ['ဆိုင်အသုံးစရိတ်စုစုပေါင်း (−)', p.expenses, '#db2777']];
+}
+function renderProfit() {
+  if (!$('#pFrom').value) setRange('today');
+  const from = $('#pFrom').value, to = $('#pTo').value;
+  const p = calcProfit(from, to, document.querySelector('[name=pDmg]:checked').value === '1');
+  $('#pPeriod').textContent = `${fmtD(from)} မှ ${fmtD(to)} ရက်နေ့အထိ (ထုတ်ယူပြီး ${p.count} လုံး)`;
+  $('#pTable').innerHTML = profitRows(p).map(([l, v, c]) => `<tr><td style="color:${c}">${l}</td><td class="num">${ks(v)}</td></tr>`).join('') +
+    `<tr class="net"><td>အသားတင်အမြတ်</td><td class="num" style="color:${p.net < 0 ? 'var(--red)' : 'var(--green)'}">${ks(p.net)}</td></tr>`;
+}
+function setRange(r) {
+  const t = new Date(), y = t.getFullYear(), m = t.getMonth();
+  const map = { today: [t, t], month: [new Date(y, m, 1), t], lastmonth: [new Date(y, m - 1, 1), new Date(y, m, 0)], year: [new Date(y, 0, 1), t] };
+  $('#pFrom').value = localISO(map[r][0]); $('#pTo').value = localISO(map[r][1]);
+}
+document.querySelectorAll('[data-range]').forEach(b => b.onclick = () => { setRange(b.dataset.range); renderProfit(); });
+['#pFrom', '#pTo'].forEach(s => $(s).addEventListener('input', renderProfit));
+document.querySelectorAll('[name=pDmg]').forEach(r => r.onchange = renderProfit);
+$('#pPrint').onclick = () => {
+  const from = $('#pFrom').value, to = $('#pTo').value;
+  const p = calcProfit(from, to, document.querySelector('[name=pDmg]:checked').value === '1');
+  doPrint(`<div class="report"><h2 style="margin:0">${esc(db.settings.shopName)}</h2>
+    <h3>အရှုံး/အမြတ်စာရင်း — ${fmtD(from)} မှ ${fmtD(to)} ရက်နေ့အထိ</h3>
+    <table>${profitRows(p).map(([l, v]) => `<tr><td>${l}</td><td style="text-align:right">${ks(v)}</td></tr>`).join('')}
+    <tr><td><b>အသားတင်အမြတ်</b></td><td style="text-align:right"><b>${ks(p.net)}</b></td></tr></table>
+    <p style="font-size:12px">ထုတ်သည့်ရက်: ${fmtD(today())}</p></div>`);
+};
+
+// ================= Print vouchers =================
+function printJob(id) {
+  const j = byId(db.jobs, id), s = db.settings, done = j.status === 'done';
+  const row = (l, v, cls = '') => v === '' || v == null ? '' : `<tr class="${cls}"><td>${l}</td><td class="r">${esc(v)}</td></tr>`;
+  const t = total(j);
+  doPrint(`<div class="receipt">
+    <h2>${esc(s.shopName)}</h2>
+    ${s.address ? `<div class="c">${esc(s.address)}</div>` : ''}${s.phone ? `<div class="c">☎ ${esc(s.phone)}</div>` : ''}
+    <hr><div class="c"><b>${done ? 'ငွေရှင်း ဘောင်ချာ' : 'ဖုန်းလက်ခံ ဘောင်ချာ'}</b></div><hr>
+    <table>
+      ${row('Vr No.', j.vr)}${row('အပ်သည့်ရက်', fmtD(j.date))}${done ? row('ထုတ်ယူသည့်ရက်', fmtD(j.pickupDate)) : ''}
+      ${row('အမည်', j.customer)}${row('ဖုန်း', j.phone)}${row('အမျိုးအစား', j.model)}${row('IMEI', j.imei)}
+      ${row('အကြောင်းအရာ', j.problem)}${row('Service ဆရာ', j.tech)}
+      ${done ? row('အခြေအနေ', j.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်') : ''}
+    </table><hr>
+    <table>
+      ${done ? `${row('လဲထည့်သည့်ပစ္စည်း', j.partName)}${row('ပစ္စည်းဖိုး', ks(j.partFee))}${row('လက်ခ', ks(j.serviceFee))}
+                ${row('စုစုပေါင်း', ks(t), 'big')}${n(j.deposit) ? row('စရံ', ks(j.deposit)) + row('ပေးရန်ကျန်', ks(t - n(j.deposit)), 'big') : ''}`
+             : `${row('ခန့်မှန်းကုန်ကျငွေ', ks(j.estimate))}${n(j.deposit) ? row('စရံ', ks(j.deposit)) : ''}`}
+    </table><hr>
+    ${s.note ? `<div class="c">${esc(s.note)}</div>` : ''}<div class="c">ကျေးဇူးတင်ပါသည် 🙏</div></div>`);
+}
+function doPrint(html) { $('#printArea').innerHTML = html; setTimeout(() => window.print(), 50); }
+
+// ================= Settings / Backup =================
+function fillSettings() {
+  const s = db.settings, f = $('#setForm');
+  fillForm(f, { ...s, technicians: s.technicians.join('\n') });
+  $('#setSaved').textContent = '';
+  $('#lastBackup').textContent = 'နောက်ဆုံး Backup: ' + (db.lastBackup ? new Date(db.lastBackup).toLocaleString() : 'မလုပ်ရသေးပါ');
+}
+$('#setForm').onsubmit = e => {
+  e.preventDefault(); const d = formData(e.target);
+  db.settings = { ...db.settings, ...d, technicians: d.technicians.split('\n').map(x => x.trim()).filter(Boolean) };
+  save(); $('#setSaved').textContent = ' ✓ သိမ်းပြီးပါပြီ';
+};
 function download(name, text, type) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type }));
-  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function csv(rows) {
   return '﻿' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
 }
-document.getElementById('jobCsv').onclick = () => download(`jobs-${today()}.csv`, csv([
-  ['ရက်စွဲ', 'ဖောက်သည်', 'ဖုန်းနံပါတ်', 'မော်ဒယ်', 'ပြဿနာ', 'ကျသင့်ငွေ', 'စရံ', 'ကုန်ကျစရိတ်', 'အခြေအနေ', 'ပေးအပ်ရက်'],
-  ...db.jobs.map(j => [j.date, j.customer, j.phone, j.model, j.problem, j.price, j.deposit, j.cost, STATUS[j.status], j.deliveredAt])
-]), 'text/csv');
-document.getElementById('partCsv').onclick = () => download(`parts-${today()}.csv`, csv([
-  ['ပစ္စည်း', 'လက်ကျန်', 'အနည်းဆုံး', 'ဝယ်ဈေး', 'ရောင်းဈေး'],
-  ...db.parts.map(p => [p.name, p.qty, p.min, p.buy, p.sell])
-]), 'text/csv');
-document.getElementById('backupBtn').onclick = () => {
-  db.lastBackup = new Date().toLocaleString();
+$('#backupBtn').onclick = () => {
+  db.lastBackup = new Date().toISOString();
   download(`phone-service-backup-${today()}.json`, JSON.stringify(db, null, 2), 'application/json');
   save();
 };
-document.getElementById('restoreFile').onchange = e => {
+$('#restoreFile').onchange = e => {
   const file = e.target.files[0]; if (!file) return;
   file.text().then(t => {
-    const d = JSON.parse(t);
-    if (!Array.isArray(d.jobs) || !Array.isArray(d.parts)) throw new Error();
+    const d = normalize(JSON.parse(t)); if (!d) throw new Error();
     if (confirm('လက်ရှိ data တွေကို Backup နဲ့ အစားထိုးမှာ သေချာလား?')) { db = d; save(); alert('ပြန်ထည့်ပြီးပါပြီ'); }
   }).catch(() => alert('Backup ဖိုင် မမှန်ပါ')).finally(() => e.target.value = '');
 };
 
-function render() {
-  renderSummary(); renderJobs(); renderParts();
-  document.getElementById('lastBackup').textContent =
-    'နောက်ဆုံး Backup: ' + (db.lastBackup || 'မလုပ်ရသေးပါ');
+// ================= Home =================
+function renderHome() {
+  $('#brandName').textContent = db.settings.shopName;
+  const t = today(), done = doneJobs().filter(j => j.pickupDate === t);
+  const items = [['ယနေ့ လက်ခံ', db.jobs.filter(j => j.date === t).length + ' လုံး'], ['ယနေ့ ထုတ်ယူ', done.length + ' လုံး'],
+    ['ယနေ့ ဝင်ငွေ', ks(sum(done, total))], ['လက်ခံထားဆဲ', db.jobs.filter(j => j.status === 'open').length + ' လုံး']];
+  $('#todayStats').innerHTML = items.map(([l, v]) => `<div><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  const old = !db.lastBackup || (Date.now() - new Date(db.lastBackup)) > 7 * 864e5;
+  $('#backupNotice').innerHTML = old && db.jobs.length
+    ? `<div class="notice">⚠️ Backup မလုပ်ရသေးတာ ၇ ရက်ကျော်ပြီ — <a href="#settings">ဆက်တင်</a> မှာ Backup ဒေါင်းထားပါ။</div>` : '';
 }
-resetJob(); render();
 
-// ---- PWA: offline + install ----
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+// ================= Router =================
+const TITLES = { home: null, profit: 'အရှုံး/အမြတ်စာရင်း', settings: 'ဆက်တင် / Backup' };
+function route() {
+  const v = location.hash.slice(1) || 'home';
+  const isList = v in VIEWS, known = isList || v in TITLES;
+  const view = known ? v : 'home';
+  const changed = view !== cur; cur = view;
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + (isList ? 'list' : view)));
+  $('#title').textContent = isList ? VIEWS[view].title : (TITLES[view] || db.settings.shopName);
+  $('#backBtn').hidden = view === 'home';
+  if (isList) { if (changed) setupList(view); renderList(); }
+  else if (view === 'profit') renderProfit();
+  else if (view === 'settings') { if (changed) fillSettings(); }
+  else renderHome();
 }
-// Browser က data ကို အလိုအလျောက် မဖျက်အောင် တောင်းဆိုထားမယ်
+cur = null;
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = b.dataset.go);
+$('#backBtn').onclick = () => location.hash = 'home';
+addEventListener('hashchange', route);
+route();
+
+// ================= PWA: offline + install =================
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-
-const net = document.getElementById('netStatus');
+const net = $('#netStatus');
 function updateNet() {
   net.textContent = navigator.onLine ? 'Online' : 'Offline — ဆက်သုံးလို့ရပါတယ်';
   net.classList.toggle('off', !navigator.onLine);
 }
 addEventListener('online', updateNet); addEventListener('offline', updateNet); updateNet();
-
 let installPrompt = null;
-const installBtn = document.getElementById('installBtn');
+const installBtn = $('#installBtn');
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; installBtn.hidden = false; });
 installBtn.onclick = async () => {
   if (!installPrompt) return;
-  installPrompt.prompt(); await installPrompt.userChoice;
-  installPrompt = null; installBtn.hidden = true;
+  installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; installBtn.hidden = true;
 };
 addEventListener('appinstalled', () => { installBtn.hidden = true; });
 </script>
