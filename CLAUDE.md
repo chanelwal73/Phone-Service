@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v15**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v16**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -149,7 +149,7 @@
   - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI | Date၊ Customer၊ Contact၊ ခန့်မှန်း
     (**Service ဆရာ နာမည် ဘောင်ချာမှာ မထည့်ရ** — ဆိုင်ရှင် တောင်းဆိုချက်)
   - ငွေရှင်း ဘောင်ချာ (ထုတ်ယူပြီး): ကျသင့်ငွေ၊ စရံ၊ ပေးရန်ကျန် **သာ** — ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
-  - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
+  - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL — **Home header card မှာလည်း ပြ**၊ home-screen app icon ကတော့ မပြောင်း)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
   - Default logo `icons/voucher-logo.svg` (အဖြူအမည်း line-art — အပြာ icon က B&W printer မှာ မည်းထွက်လို့)
   - Barcode: `code128Svg()` ကိုယ်တိုင်ရေး (Code 128-B)။ QR: `vendor/qrcode.js` (qrcode-generator 2.0.4, MIT)။
     zxing-cpp နဲ့ decode စစ်ပြီး။ Barcode scanner နဲ့ ဖတ်ရင် Search (Vr No.) ထဲ ရိုက်ထည့်ပေးလို့ ရှာလို့ရ။
