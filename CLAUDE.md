@@ -63,6 +63,10 @@
   parts: [{ id, name, qty, min, buy, sell }] }
 ```
 - ဝင်ငွေ (စုစုပေါင်း) = `partFee + serviceFee`။ ပျက်စီးမှုငွေ = `damage.value × damage.qty`
+- **▶ ထုတ်ယူ dialog** (ဆိုင်ရှင် တောင်းဆိုချက်): ဖုန်းအပ်တုန်းက ထည့်ထားတာတွေ ထပ်ရိုက်စရာမလိုရ —
+  `ကျသင့်ငွေ` = `estimate` (ဖောက်သည်ဆီ တောင်းထားတဲ့ဈေး)၊ `partName` = `problem` ကို အလိုအလျောက်ဖြည့်၊
+  cursor က ပစ္စည်းဖိုးမှာ။ ပစ္စည်းဖိုး ရိုက်တာနဲ့ **အမြတ် (လက်ခ) = ကျသင့်ငွေ − ပစ္စည်းဖိုး** ကို ဘေးမှာ ချက်ချင်းပြ။
+  သိမ်းရင် `serviceFee = charge − partFee` (ဥပမာ 40,000 တောင်း၊ ပစ္စည်းဖိုး 20,000 → အမြတ် 20,000)။
 - ပြုပြင်ပြီး/ဝင်ငွေ/ပျက်စီးမှု/အရှုံးအမြတ် အားလုံးက **ထုတ်ယူရက် (`pickupDate`)** နဲ့ တွက်တယ်
 - Vr No. = `nextVr` ကနေ အစဉ်လိုက် (1001, 1002, ...)
 - `_v1` data ရှိရင် အလိုအလျောက် v2 ကို migrate လုပ်တယ် (`migrateV1`)
@@ -102,8 +106,11 @@
   - Windows (Chrome/Edge): ခလုတ် (သို့) address bar ထဲက install icon
 - iPhone မှာ install လုပ်ထားတဲ့ app ရဲ့ data က Safari ထဲက data နဲ့ သီးခြားဖြစ်တယ်။
 
+## သိထားရမယ့် ကန့်သတ်ချက်
+- Data က **စက်တစ်လုံးချင်း** (browser localStorage) မှာပဲ ရှိတယ် — ဖုန်းမှာထည့်တာ laptop မှာ မပေါ်။
+  ဆိုင်ရှင်က စက်များကြား မျှသုံးချင်တယ် → cloud sync လိုအပ်ပြီ (Roadmap ကြည့်)။
+
 ## မေးရန် ကျန်သေးတာ (ဆိုင်ရှင်ထံ)
-- ▶ ခလုတ်ရဲ့ အတိအကျ လုပ်ဆောင်ချက် (လောလောဆယ် "ပြင်ပြီး/ထုတ်ယူ" dialog လို့ ယူဆထား)
 - ဘောင်ချာ ပုံစံ အစစ် (ဆိုင်အမည်၊ စည်းကမ်းချက်) နဲ့ printer အမျိုးအစား (58/80mm / A4)
 - လက်ရှိ program ရဲ့ data အဟောင်းကို Excel ကနေ import လုပ်ဖို့ လိုမလို
 
@@ -115,5 +122,5 @@
 - [ ] လက်ရှိ program ရဲ့ Excel data import
 - [ ] လဲထည့်တဲ့ပစ္စည်းကို stock ထဲက အလိုအလျောက် နုတ်ခြင်း
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
-- [ ] Cloudflare Pages ပေါ် deploy
-- [ ] (ရွေးချယ်) Cloudflare D1 ဖြင့် စက်များကြား data sync (offline-first)
+- [x] GitHub Pages ပေါ် deploy (`https://chanelwal73.github.io/Phone-Service/`, `main` branch)
+- [ ] **စက်များကြား data sync (ဖုန်း ↔ laptop) — ဆိုင်ရှင် လိုအပ်ကြောင်း ပြောပြီ** (Cloudflare Worker + D1, offline-first)

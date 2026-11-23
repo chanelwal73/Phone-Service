@@ -118,6 +118,9 @@
   legend { font-size:.85rem; color:var(--muted); padding:0 6px; }
   .info { background:#f1f5f9; border-radius:8px; padding:8px 12px; font-size:.9rem; margin-bottom:12px; }
   .sumline { display:flex; justify-content:flex-end; gap:18px; flex-wrap:wrap; margin-top:10px; font-weight:700; }
+  .profitbox { display:flex; flex-direction:column; justify-content:center; background:#f0fdf4; border:1px solid #bbf7d0;
+               border-radius:8px; padding:4px 12px; }
+  .profitbox .l { font-size:.82rem; color:var(--muted); } .profitbox .v { font-size:1.25rem; font-weight:700; }
   .dlg-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:16px; }
 
   /* Profit */
@@ -291,9 +294,10 @@
       <label>ဖုန်းထုတ်ယူသည့်ရက်<input type="date" name="pickupDate" required></label>
       <label>ပြုပြင်မှုအခြေအနေ
         <select name="result"><option value="success">အောင်မြင်</option><option value="fail">မအောင်မြင်</option></select></label>
-      <label class="full">လဲထည့်သည့်ပစ္စည်း<input name="partName" placeholder="ဥပမာ tlcd, battery"></label>
-      <label>ပစ္စည်းဖိုး (Ks)<input type="number" name="partFee" min="0" step="1" value="0"></label>
-      <label>လက်ခ (Ks)<input type="number" name="serviceFee" min="0" step="1" value="0"></label>
+      <label class="full">လဲထည့်သည့်ပစ္စည်း / ပြင်ခဲ့သည့်အကြောင်းအရာ<input name="partName" placeholder="ဥပမာ tlcd, battery"></label>
+      <label>ကျသင့်ငွေ — ဖောက်သည်ပေးငွေ (Ks)<input type="number" name="charge" min="0" step="1" value="0"></label>
+      <label>ပစ္စည်းဖိုး (Ks)<input type="number" name="partFee" min="0" step="1" value="0" autofocus></label>
+      <div class="profitbox" id="doneProfit"></div>
     </div>
     <div class="sumline" id="doneSum"></div>
     <fieldset>
@@ -589,24 +593,30 @@ function undoDone(id) {
 // ---- Done dialog ----
 function openDone(id) {
   const j = byId(db.jobs, id), f = $('#doneForm'); f.reset();
-  fillForm(f, { id, pickupDate: j.pickupDate || today(), result: j.result || 'success', partName: j.partName || '',
-    partFee: j.partFee || 0, serviceFee: j.serviceFee ?? 0,
+  // ဖုန်းအပ်တုန်းက ထည့်ထားတာတွေ (တောင်းထားတဲ့ဈေး၊ အကြောင်းအရာ) ကို အလိုအလျောက် ဖြည့်ထားမယ်
+  const done = j.status === 'done';
+  fillForm(f, { id, pickupDate: j.pickupDate || today(), result: j.result || 'success',
+    partName: j.partName || j.problem || '', charge: done ? total(j) : n(j.estimate), partFee: done ? n(j.partFee) : 0,
     dPart: j.damage?.part || '', dValue: j.damage?.value || 0, dQty: j.damage?.qty || 1 });
   $('#doneInfo').innerHTML = `<b>Vr ${esc(j.vr)}</b> · ${esc(j.customer)} · ${esc(j.model)} · ${esc(j.problem)}<br>
-    <span class="count">ခန့်မှန်းငွေ ${ks(j.estimate)} · စရံ ${ks(j.deposit)}</span>`;
+    <span class="count">တောင်းထားသည့်ဈေး (ခန့်မှန်းငွေ) ${ks(j.estimate)} · စရံ ${ks(j.deposit)}</span>`;
   updDoneSum(); $('#doneDlg').showModal();
+  f.elements.partFee.focus(); f.elements.partFee.select();
 }
 function updDoneSum() {
   const f = $('#doneForm'), j = byId(db.jobs, f.elements.id.value); if (!j) return;
-  const t = n(f.elements.partFee.value) + n(f.elements.serviceFee.value);
-  $('#doneSum').innerHTML = `<span>စုစုပေါင်း: ${ks(t)}</span>` + (n(j.deposit) ? `<span>ကျန်ငွေ: ${ks(t - n(j.deposit))}</span>` : '');
+  const charge = n(f.elements.charge.value), profit = charge - n(f.elements.partFee.value);
+  $('#doneProfit').innerHTML = `<span class="l">အမြတ် (လက်ခ)</span>
+    <span class="v ${profit < 0 ? 'bad' : 'ok'}">${ks(profit)}</span>`;
+  $('#doneSum').innerHTML = n(j.deposit)
+    ? `<span>စရံ: ${ks(j.deposit)}</span><span>ဖောက်သည် ပေးရန်ကျန်: ${ks(charge - n(j.deposit))}</span>` : '';
 }
 $('#doneForm').addEventListener('input', updDoneSum);
 $('#doneForm').onsubmit = e => {
   e.preventDefault();
   const d = formData(e.target), j = byId(db.jobs, d.id), print = e.submitter?.value === 'print';
   Object.assign(j, { status: 'done', pickupDate: d.pickupDate, result: d.result, partName: d.partName,
-    partFee: d.partFee, serviceFee: d.serviceFee,
+    partFee: d.partFee, serviceFee: d.charge - d.partFee, // ဝင်ငွေ = ကျသင့်ငွေ၊ လက်ခ(အမြတ်) = ကျသင့်ငွေ − ပစ္စည်းဖိုး
     damage: d.dPart || d.dValue ? { part: d.dPart, value: d.dValue, qty: d.dQty || 1 } : null });
   $('#doneDlg').close(); save();
   if (print) printJob(j.id);
