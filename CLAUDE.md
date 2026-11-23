@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v18**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v21**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -116,7 +116,6 @@
      → ▶ "ဖုန်းပြန်ထုတ်ပေးရန်" → **ထုတ်ပေးသည့်ရက် ရွေး** (နောက်ဆုံးရွေးတဲ့ ရက်ဟောင်းကို မှတ်ထား) → `done`
   3. ⚙ menu: "ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်ရန်" (done → repaired) / "ပြုပြင်ဆဲစာရင်းသို့ ပြောင်းရန်" (→ open)
 - **ဝင်ငွေ/အရှုံးအမြတ်** = `done` (ထုတ်ပြီး) သာ၊ **ထုတ်ယူရက် (`pickupDate`)** နဲ့ တွက်။ ပြုပြင်ပြီး/ပျက်စီးမှု list က `repaired` + `done`
-- `repaired` ဘောင်ချာ print = ငွေရှင်းဘောင်ချာ (ရက် = ယနေ့)
 - ⚠️ `status: 'repaired'` က အသစ်ထည့်တဲ့ တန်ဖိုး (data key မပြောင်း — data ဟောင်း အကုန် valid)။ app ဟောင်းကို update မလုပ်ရသေးတဲ့ စက်က
   `repaired` ကို မမြင်ရ → Update bar နဲ့ update ခိုင်းပါ
 - Vr No. = `nextVr` ကနေ အစဉ်လိုက် (1001, 1002, ...) — Sync ချိတ်ထားရင် server counter က ခွဲပေး (Sync အပိုင်းကြည့်)
@@ -132,6 +131,9 @@
   ဇယား action ခလုတ် `ib(name, title, fn)` — အရောင် `IB_COLOR` (printer=blue, circle-check-big=green, hand-coins=teal,
   coins=amber, ellipsis-vertical=slate, pencil=indigo, trash-2=red)။ Icon အသစ်လိုရင် lucide-static ကနေ symbol ထပ်ထည့်ပါ။
   Home tile တွေက `c-blue/green/teal/orange/rose/violet/amber/slate` gradient icon။ CSS "Design v2" block က အပေါ်က rule တွေကို override လုပ်တယ်။
+- **Dark mode** (ဆိုင်ရှင် တောင်းဆို): topbar က 🌙/☀️ ခလုတ် (`#themeBtn`)၊ `html[data-theme=dark]` + CSS "Dark mode" block၊
+  စက်တစ်လုံးချင်း (`localStorage` key `phoneServiceTheme`၊ Sync မပါ)၊ `<head>` ထဲ inline script နဲ့ ပထမ paint မတိုင်ခင် apply။
+  Print/ဘောင်ချာက theme မလိုက် — အမြဲ အဖြူ/အမည်း။ Element အသစ်ထည့်ရင် dark override လိုမလို စစ်ပါ (#fff hard-code တွေ)။
 - **UI ဘာသာစကား**: မြန်မာဘာသာ။ ငွေ = ကျပ် (Ks)၊ comma ခြား။ ရက်စွဲပြပုံ `dd-mm-yyyy`။
 - **စာလုံး/စာရိုက်ကွက် အရွယ်** (ဆိုင်ရှင် "သေးတယ်" လို့ ပြောပြီး ကြီးထားတာ): `html { font-size:18px }`၊ input/button
   အမြင့် ≥46px၊ size တွေအားလုံး `rem` နဲ့ ရေးပါ (px မသုံးရ — ဘောင်ချာ print မှလွဲ)။ ဆက်တင်မှာ **စာလုံးအရွယ်**
@@ -148,7 +150,9 @@
     ဇယား (ဖုန်းအမျိုးအစား | အကြောင်းအရာ | ခန့်မှန်းကုန်ကျငွေ) → မှတ်ချက် (default: "တစ်လကျော်သည့် ဖုန်းများကို တာဝန်မယူပါ။" — ဆိုင်ရှင်ရွေးထား) → **Barcode (Code128) + QR** (Vr No.)
   - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI | Date၊ Customer၊ Contact၊ ခန့်မှန်း
     (**Service ဆရာ နာမည် ဘောင်ချာမှာ မထည့်ရ** — ဆိုင်ရှင် တောင်းဆိုချက်)
-  - ငွေရှင်း ဘောင်ချာ (ထုတ်ယူပြီး): ကျသင့်ငွေ၊ စရံ၊ ပေးရန်ကျန် **သာ** — ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
+  - **ဘောင်ချာ တစ်မျိုးတည်း** (ဆိုင်ရှင် တောင်းဆို) — ဖုန်းလက်ခံတဲ့အခါ ထုတ်တဲ့ ဘောင်ချာပဲ။ **ငွေရှင်းဘောင်ချာ မရှိ**။
+    Print ခလုတ်က လက်ခံစာရင်းမှာ + ဖုန်းလက်ခံ dialog ("သိမ်းပြီး Print") မှာပဲ ရှိ (ပြုပြင်ပြီး/ဝင်ငွေ/ထုတ်ပေး dialog မှာ မရှိ)
+  - ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
   - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL — **Home header card မှာလည်း ပြ**၊ home-screen app icon ကတော့ မပြောင်း)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
   - Default logo `icons/voucher-logo.svg` (အဖြူအမည်း line-art — အပြာ icon က B&W printer မှာ မည်းထွက်လို့)
   - Barcode: `code128Svg()` ကိုယ်တိုင်ရေး (Code 128-B)။ QR: `vendor/qrcode.js` (qrcode-generator 2.0.4, MIT)။
