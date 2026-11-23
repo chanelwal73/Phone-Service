@@ -74,6 +74,11 @@
 - **External library မသုံး** (offline အလုပ်လုပ်ရမယ်)။
 - **UI ဘာသာစကား**: မြန်မာဘာသာ။ ငွေ = ကျပ် (Ks)၊ comma ခြား။ ရက်စွဲပြပုံ `dd-mm-yyyy`။
 - **Desktop + Mobile** — ဆိုင်မှာ monitor ကြီးနဲ့ ဇယားအကျယ်ကြီး သုံးတယ်၊ ဖုန်းမှာ ဇယားကို ဘေးတိုက် scroll။
+- **Font** (`fonts/`, offline cache ထဲပါ): စာသား/ဇယား = **Padauk** (SIL OFL, Regular+Bold woff2, `@fontsource/padauk` ကနေ)၊
+  ခေါင်းစဉ်/card = **Akkhayar Robo** (ဆိုင်ရှင်ပေးတဲ့ font၊ "Free to use")။ Akkhayar ကို `unicode-range: U+1000-109F`
+  (မြန်မာစာသာ) ကန့်ထားတယ် — သူ့ ဂဏန်း "2" က "Z" နဲ့ ဆင်လို့ ဂဏန်း/English က Padauk နဲ့ပြတယ်။
+  ဆိုင်ရှင်ပေးတဲ့ တခြား font (Burma-009/019, BM-King002, Z09-LatYaySat, PT16_Burmese) တွေ repo ထဲ မထည့်ထား
+  (BM-King002 က စာလုံးကွဲတယ်)။ Font အသစ်က **Unicode** ဖြစ်ရမယ် (Zawgyi မရ)။
 - **Print**: `#printArea` + `@media print`။ ဘောင်ချာ အကျယ် ~72mm (80mm receipt printer)။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။

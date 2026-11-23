@@ -12,14 +12,28 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ဖုန်းဆိုင်စာရင်း">
 <style>
+  /* Fonts (offline, sw.js မှာ cache) — Padauk: SIL OFL, Akkhayar Robo: free to use */
+  @font-face { font-family:"Padauk"; font-weight:400; font-display:swap; src:url(fonts/padauk-myanmar-400.woff2) format("woff2");
+               unicode-range:U+1000-109F, U+200C-200D, U+25CC, U+A9E0-A9FF, U+AA60-AA7F; }
+  @font-face { font-family:"Padauk"; font-weight:700; font-display:swap; src:url(fonts/padauk-myanmar-700.woff2) format("woff2");
+               unicode-range:U+1000-109F, U+200C-200D, U+25CC, U+A9E0-A9FF, U+AA60-AA7F; }
+  @font-face { font-family:"Padauk"; font-weight:400; font-display:swap; src:url(fonts/padauk-latin-400.woff2) format("woff2");
+               unicode-range:U+0000-00FF, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212; }
+  @font-face { font-family:"Padauk"; font-weight:700; font-display:swap; src:url(fonts/padauk-latin-700.woff2) format("woff2");
+               unicode-range:U+0000-00FF, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212; }
+  @font-face { font-family:"Akkhayar Robo"; font-display:swap; src:url(fonts/akkhayar-robo.woff2) format("woff2");
+               unicode-range:U+1000-109F; } /* မြန်မာစာလုံးသာ — ဂဏန်း/English က Padauk (2 နဲ့ Z မရောအောင်) */
+  :root { --font:"Padauk","Pyidaungsu","Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;
+          --font-head:"Akkhayar Robo",var(--font); }
   :root { --bg:#eef0f4; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#dfe3ea; --nav:#1f2433;
           --accent:#2563eb; --green:#16a34a; --red:#dc2626; }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:"Pyidaungsu","Noto Sans Myanmar","Myanmar Text",system-ui,sans-serif;
+  body { margin:0; font-family:var(--font);
          background:var(--bg); color:var(--text); line-height:1.6; }
   .topbar { background:var(--nav); color:#fff; padding:10px 16px; display:flex; align-items:center; gap:10px;
             flex-wrap:wrap; position:sticky; top:0; z-index:5; }
   .topbar h1 { margin:0; font-size:1.1rem; flex:1; }
+  h1, h2, h3, .tile, .stat .v, .stat .l, .ptable tr.net td, .period, .receipt h2 { font-family:var(--font-head); font-weight:400; }
   .back { background:none; border:0; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; padding:0 6px; }
   .pill { font-size:.78rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.15); }
   .pill.off { background:#fbbf24; color:var(--text); }
@@ -61,7 +75,7 @@
   /* Stat cards */
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
   .stat { border-radius:12px; padding:12px 16px; color:#fff; }
-  .stat .l { font-size:.85rem; opacity:.92; } .stat .v { font-size:1.35rem; font-weight:700; font-variant-numeric:tabular-nums; }
+  .stat .l { font-size:.85rem; opacity:.92; } .stat .v { font-size:1.35rem; font-weight:700; font-synthesis:none; font-variant-numeric:tabular-nums; }
   .stat.green { background:linear-gradient(135deg,#15803d,#22c55e); }
   .stat.purple { background:linear-gradient(135deg,#6d28d9,#a855f7); }
   .stat.blue { background:linear-gradient(135deg,#0369a1,#0ea5e9); }
