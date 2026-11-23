@@ -405,8 +405,9 @@
 const KEY = 'phoneServiceData_v2', KEY_V1 = 'phoneServiceData_v1';
 const $ = s => document.querySelector(s);
 
-const DEFAULT_NOTE = 'တစ်လကျော်သည့် အပ်ထည်များကို တာဝန်မယူပါ။';
-const OLD_NOTE = 'ဖုန်းပြင်ပြီးကြောင်း အကြောင်းကြားပြီး ၁ လအတွင်း လာရောက်ထုတ်ယူပါရန်။';
+const DEFAULT_NOTE = 'တစ်လကျော်သည့် ဖုန်းများကို တာဝန်မယူပါ။';
+// ယခင် default စာများ — settings ထဲ မပြင်ဘဲ ကျန်နေရင် DEFAULT_NOTE နဲ့ အစားထိုး
+const OLD_NOTES = ['ဖုန်းပြင်ပြီးကြောင်း အကြောင်းကြားပြီး ၁ လအတွင်း လာရောက်ထုတ်ယူပါရန်။', 'တစ်လကျော်သည့် အပ်ထည်များကို တာဝန်မယူပါ။'];
 function blank() {
   return { version: 2, nextVr: 1001, lastBackup: null, jobs: [], expenses: [], parts: [],
     settings: { shopName: 'ဖုန်းပြင်ဆိုင်', phone: '', address: '',
@@ -431,7 +432,7 @@ function normalize(d) {
   if (d && d.version === 2 && Array.isArray(d.jobs)) {
     const b = blank();
     const settings = { ...b.settings, ...d.settings };
-    if (settings.note === OLD_NOTE) settings.note = DEFAULT_NOTE; // မူလ default စာကို ဆိုင်ရဲ့ ဘောင်ချာစာနဲ့ အစားထိုး
+    if (OLD_NOTES.includes(settings.note)) settings.note = DEFAULT_NOTE;
     return { ...b, ...d, expenses: d.expenses || [], parts: d.parts || [], settings };
   }
   if (d && Array.isArray(d.jobs)) return migrateV1(d);
