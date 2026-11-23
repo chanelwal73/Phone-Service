@@ -1,5 +1,5 @@
 // Offline cache. ဖိုင်တစ်ခုခု ပြင်တိုင်း VERSION ကို တိုးပါ (ဒါမှ ဖုန်းတွေမှာ update ရမယ်)
-const VERSION = 'v8';
+const VERSION = 'v10';
 const CACHE = 'phone-service-' + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png',
@@ -17,6 +17,7 @@ self.addEventListener('activate', e => {
 // Network first (update အသစ်ရအောင်)၊ internet မရှိရင် cache ကနေ ပြမယ်
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) return;
+  if (new URL(e.request.url).pathname.includes('/api/')) return;   // Sync API ကို cache မလုပ်
   e.respondWith(
     fetch(e.request).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }

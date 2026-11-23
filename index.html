@@ -290,9 +290,21 @@
         <button class="btn" type="submit">သိမ်းမည်</button>
         <span class="count" id="setSaved"></span>
       </form>
+      <div class="card" id="syncCard">
+        <h3>🔄 စက်များကြား Sync</h3>
+        <p id="syncStatus" style="margin-top:0"></p>
+        <div id="syncOff">
+          <label>ဆိုင် Password<input type="password" id="syncKey" autocomplete="current-password"></label>
+          <button class="btn" type="button" id="syncConnect">ချိတ်ဆက်မည်</button>
+        </div>
+        <div id="syncOn" class="toolbar">
+          <button class="btn" type="button" id="syncNow">ယခု Sync လုပ်မည်</button>
+          <button class="btn sec" type="button" id="syncDisconnect">ဒီစက်ကို ဖြုတ်မည်</button>
+        </div>
+      </div>
       <div class="card">
         <h3>Backup</h3>
-        <p class="notice" style="margin-top:0">Data တွေကို ဒီစက်ရဲ့ browser ထဲမှာပဲ သိမ်းထားပါတယ်။ ဖုန်းပျောက်/ပျက် ရင် ပြန်ရဖို့
+        <p class="notice" style="margin-top:0">Sync ချိတ်ထားရင်တောင် အရေးပေါ်အတွက်
           <b>ပုံမှန် (အပတ်စဉ်) Backup ဖိုင် ဒေါင်းထားပါ</b>။</p>
         <div class="toolbar">
           <button class="btn" id="backupBtn">⬇ Backup ဒေါင်းမည်</button>
@@ -444,10 +456,14 @@ function load() {
   return blank();
 }
 let db = load();
-function save() {
+function persistLocal() {
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
   catch (e) { alert('သိမ်းလို့ မရပါ — Backup ဒေါင်းထားပါ။'); }
-  route();
+}
+function save() {
+  trackChanges();      // Sync: ဘာပြောင်းသွားလဲ မှတ် (sync မချိတ်ထားရင် ဘာမှမလုပ်)
+  persistLocal(); route();
+  scheduleSync();
 }
 
 // ================= Helpers =================
@@ -621,12 +637,18 @@ function openJob(id) {
   $('#jobTitle').textContent = j ? `ဖုန်းလက်ခံ — ပြင်ရန် (Vr ${j.vr})` : 'ဖုန်းလက်ခံ — အသစ်';
   techOptions(); $('#jobDlg').showModal();
 }
-$('#jobForm').onsubmit = e => {
+$('#jobForm').onsubmit = async e => {
   e.preventDefault();
   const d = formData(e.target), print = e.submitter?.value === 'print';
   let j;
   if (d.id) { j = byId(db.jobs, d.id); Object.assign(j, d); }
-  else { j = { ...d, id: uid(), vr: db.nextVr++, status: 'open', damage: null }; db.jobs.push(j); }
+  else {
+    const btns = e.target.querySelectorAll('button[type=submit]');
+    btns.forEach(b => b.disabled = true);            // Vr No. ယူနေတုန်း ၂ ခါမနှိပ်မိအောင်
+    const vr = await allocVr();
+    btns.forEach(b => b.disabled = false);
+    j = { ...d, id: uid(), vr, status: 'open', damage: null }; db.jobs.push(j);
+  }
   if (d.tech && !db.settings.technicians.includes(d.tech)) db.settings.technicians.push(d.tech);
   $('#jobDlg').close(); save();
   if (print) printJob(j.id);
@@ -911,14 +933,177 @@ $('#backBtn').onclick = () => location.hash = 'home';
 addEventListener('hashchange', route);
 route();
 
+// ================= Cloud Sync (Cloudflare Pages Functions + D1) =================
+// စက်တိုင်းက localStorage မှာ ဆက်သိမ်းတယ် (offline သုံးလို့ရ)။ ပြောင်းသွားတဲ့ record တွေကို hash နဲ့ ရှာပြီး
+// server ကို ပို့/ယူ တယ်။ ပဋိပက္ခဖြစ်ရင် updatedAt ပိုနောက်ကျတာ နိုင်တယ် (last-write-wins)။
+const SYNC_KEY = 'phoneServiceSync_v1';
+let sync = { key: '', tag: '', lastRev: 0, hashes: {}, pending: {}, lastOk: null };
+try { sync = { ...sync, ...JSON.parse(localStorage.getItem(SYNC_KEY)) }; } catch (e) {}
+function saveSync() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) {} }
+const SYNC_KINDS = ['jobs', 'expenses', 'parts'];
+function hash(str) {   // FNV-1a — record ပြောင်းမပြောင်း စစ်ဖို့ (record အပြည့်မသိမ်းဘဲ နေရာချွေတာ)
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36);
+}
+const recBody = o => { const { updatedAt, ...rest } = o; return JSON.stringify(rest); };
+function* allRecords() {
+  for (const k of SYNC_KINDS) for (const r of db[k]) yield [k, r.id, r];
+  yield ['settings', 'shop', db.settings];
+}
+function trackChanges() {
+  if (!sync.key) return;
+  const now = Date.now(), seen = new Set();
+  for (const [kind, id, r] of allRecords()) {
+    const k = kind + ':' + id, h = hash(recBody(r)); seen.add(k);
+    if (sync.hashes[k] !== h) { r.updatedAt = now; sync.hashes[k] = h; sync.pending[k] = { kind, id, updatedAt: now }; }
+  }
+  for (const k of Object.keys(sync.hashes)) if (!seen.has(k)) {          // ဖျက်လိုက်တာ
+    const i = k.indexOf(':');
+    delete sync.hashes[k];
+    sync.pending[k] = { kind: k.slice(0, i), id: k.slice(i + 1), updatedAt: now, deleted: 1 };
+  }
+  saveSync();
+}
+function mergeRows(rows) {
+  let changed = false;
+  for (const row of rows) {
+    sync.lastRev = Math.max(sync.lastRev, row.rev);
+    const k = row.kind + ':' + row.id, p = sync.pending[k];
+    if (p && p.updatedAt > row.updated_at) continue;                  // ဒီစက်က ပိုအသစ် — နောက်တစ်ခါ ပို့မယ်
+    if (row.kind === 'settings') {
+      if (row.deleted || !row.data) continue;
+      const d = JSON.parse(row.data);
+      if (sync.hashes[k] === hash(recBody(d))) { delete sync.pending[k]; continue; }
+      db.settings = { ...blank().settings, ...d };
+      sync.hashes[k] = hash(recBody(db.settings)); delete sync.pending[k]; changed = true;
+      continue;
+    }
+    const arr = db[row.kind]; if (!arr) continue;
+    const i = arr.findIndex(x => x.id === row.id);
+    if (row.deleted) {
+      if (i >= 0) { arr.splice(i, 1); changed = true; }
+      delete sync.hashes[k]; delete sync.pending[k]; continue;
+    }
+    const d = JSON.parse(row.data), h = hash(recBody(d));
+    delete sync.pending[k];
+    if (i >= 0 && sync.hashes[k] === h) continue;                     // ကိုယ်ပို့ထားတာ ပြန်ရောက်လာတာ
+    if (i >= 0) arr[i] = d; else arr.push(d);
+    sync.hashes[k] = h; changed = true;
+    if (row.kind === 'jobs' && n(d.vr) >= db.nextVr) db.nextVr = n(d.vr) + 1;
+  }
+  return changed;
+}
+let syncState = '', syncing = false, syncAgain = false, syncTimer = null;
+async function api(path, payload, key = sync.key) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const res = await fetch('api/' + path, { method: payload ? 'POST' : 'GET', signal: ctl.signal, cache: 'no-store',
+      headers: { 'content-type': 'application/json', 'x-shop-key': key }, body: payload ? JSON.stringify(payload) : undefined });
+    const isJson = (res.headers.get('content-type') || '').includes('json');
+    const code = res.status === 401 ? 'auth' : res.status === 503 && isJson ? 'notconf' : !isJson || res.status === 404 ? 'noapi' : res.ok ? '' : 'error';
+    if (code) throw Object.assign(new Error(code), { code });
+    return await res.json();
+  } catch (e) { if (!e.code) e.code = navigator.onLine ? 'error' : 'offline'; throw e; }
+  finally { clearTimeout(t); }
+}
+async function runSync() {
+  if (!sync.key) return;
+  if (syncing) { syncAgain = true; return; }
+  syncing = true; setSyncState('busy');
+  try {
+    for (let round = 0, more = true; more && round < 100; round++) {
+      const keys = Object.keys(sync.pending).slice(0, 40);
+      const changes = keys.map(k => {
+        const p = sync.pending[k]; if (p.deleted) return p;
+        const r = p.kind === 'settings' ? db.settings : byId(db[p.kind] || [], p.id);
+        return r ? { ...p, data: r } : { ...p, deleted: 1 };
+      });
+      const res = await api('sync', { since: sync.lastRev, changes });
+      keys.forEach((k, i) => { if (sync.pending[k] && sync.pending[k].updatedAt === changes[i].updatedAt) delete sync.pending[k]; });
+      const changed = mergeRows(res.rows || []);
+      saveSync();
+      if (changed) { persistLocal(); route(); }
+      more = res.more || Object.keys(sync.pending).length > 0;
+    }
+    sync.lastOk = new Date().toISOString(); saveSync(); setSyncState('ok');
+  } catch (e) { setSyncState(e.code || 'error'); }
+  finally { syncing = false; if (syncAgain) { syncAgain = false; setTimeout(runSync, 300); } }
+}
+function scheduleSync(delay = 800) {
+  if (!sync.key) return;
+  clearTimeout(syncTimer); syncTimer = setTimeout(runSync, delay);
+}
+// Vr No. — online ဆိုရင် server က ခွဲပေး (စက်တွေကြား မထပ်)၊ offline ဆိုရင် ဒီစက်ရဲ့ အက္ခရာ ပါတဲ့ နံပါတ်
+async function allocVr() {
+  if (sync.key && navigator.onLine) {
+    try { const r = await api('vr', { min: db.nextVr }); db.nextVr = Math.max(db.nextVr, n(r.vr) + 1); return n(r.vr); } catch (e) {}
+  }
+  const v = db.nextVr++;
+  return sync.key ? v + (sync.tag || 'X') : v;
+}
+const SYNC_MSG = {
+  busy: ['☁ Sync လုပ်နေသည်...', ''], ok: ['☁ Sync ✓', ''],
+  offline: ['☁ Offline — လိုင်းရရင် ပို့မယ်', 'off'], auth: ['☁ Password မှားနေပါတယ်', 'off'],
+  noapi: ['☁ ဒီ link မှာ Sync မရ', 'off'], notconf: ['☁ Cloudflare မှာ setup မပြီးသေး', 'off'], error: ['☁ Sync error — ပြန်ကြိုးစားမယ်', 'off'],
+};
+const SYNC_HELP = {
+  auth: 'Password မှားနေပါတယ်။ ဆိုင်ရှင်ဆီက password အမှန်ကို မေးပြီး ပြန်ချိတ်ပါ။',
+  noapi: 'ဒီ link (ဥပမာ GitHub Pages) မှာ Sync မရပါ — Cloudflare link (….pages.dev) ကနေ ဖွင့်ပါ။',
+  notconf: 'Cloudflare Pages မှာ D1 database (DB) နဲ့ SHOP_PASSWORD မသတ်မှတ်ရသေးပါ။',
+  offline: 'Internet မရှိပါ — ဆက်သုံးလို့ရပါတယ်၊ လိုင်းရတာနဲ့ အလိုအလျောက် ပို့ပါမယ်။',
+  error: 'Server ကို ဆက်သွယ်လို့ မရပါ — ခဏနေ အလိုအလျောက် ပြန်ကြိုးစားပါမယ်။',
+};
+function setSyncState(st) { syncState = st; updateNet(); renderSyncCard(); }
+function renderSyncCard() {
+  const on = !!sync.key, pend = Object.keys(sync.pending).length;
+  $('#syncOff').hidden = on; $('#syncOn').hidden = !on;
+  $('#syncStatus').innerHTML = !on
+    ? 'ချိတ်ဆက်မထားပါ — data က ဒီစက်ထဲမှာပဲ ရှိပါတယ်။ ဆိုင် password ထည့်ပြီး ချိတ်လိုက်ရင် ဖုန်း/laptop အားလုံး data တူသွားပါမယ်။'
+    : `<b>✓ ချိတ်ဆက်ထားပါတယ်</b> (ဒီစက် အမှတ်: ${esc(sync.tag)})<br>
+       <span class="count">နောက်ဆုံး Sync: ${sync.lastOk ? new Date(sync.lastOk).toLocaleString() : '-'}
+       ${pend ? ` · ပို့ရန်စောင့်နေ: ${pend} ခု` : ''}</span>
+       ${SYNC_HELP[syncState] ? `<br><span class="bad">${SYNC_HELP[syncState]}</span>` : ''}`;
+}
+$('#syncConnect').onclick = async () => {
+  const key = $('#syncKey').value.trim(); if (!key) return $('#syncKey').focus();
+  const btn = $('#syncConnect'); btn.disabled = true;
+  try { await api('ping', null, key); }
+  catch (e) { btn.disabled = false; return alert(SYNC_HELP[e.code] || SYNC_HELP.error); }
+  btn.disabled = false;
+  const hasLocal = db.jobs.length + db.expenses.length + db.parts.length > 0;
+  if (hasLocal && !confirm('ဒီစက်ထဲက data တွေကို Cloud ထဲ ထည့်ပေါင်းမလား?\n\nOK = ထည့်ပေါင်းမယ်\nCancel = ဒီစက်ထဲက data ကို ဖျက်ပြီး Cloud က data ကိုပဲ ယူမယ်'))
+    { const nv = db.nextVr; db = blank(); db.nextVr = nv; persistLocal(); }
+  sync = { ...sync, key, tag: sync.tag || 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random() * 24)], lastRev: 0, hashes: {}, pending: {} };
+  if (!hasLocal) { sync.hashes['settings:shop'] = hash(recBody(db.settings)); }   // ဗလာစက် — cloud ရဲ့ ဆက်တင်ကို ယူမယ်
+  trackChanges(); $('#syncKey').value = ''; renderSyncCard(); await runSync(); fillSettings();
+};
+$('#syncNow').onclick = () => runSync();
+$('#syncDisconnect').onclick = () => {
+  if (!confirm('ဒီစက်ကို Sync ကနေ ဖြုတ်မလား? (ဒီစက်ထဲက data မပျက်ပါ — နောက်ပိုင်း ပြောင်းတာတွေ တခြားစက်ကို မရောက်တော့ပါ)')) return;
+  sync = { ...sync, key: '', lastRev: 0, hashes: {}, pending: {} }; saveSync(); setSyncState('');
+};
+addEventListener('online', () => scheduleSync(100));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleSync(100); });
+setInterval(() => { if (!document.hidden && !syncing) runSync(); }, 30000);   // တခြားစက်က ထည့်တာ ၃၀ စက္ကန့်တိုင်း ယူ
+renderSyncCard();
+if (sync.key) runSync();
+
 // ================= PWA: offline + install =================
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 const net = $('#netStatus');
 function updateNet() {
-  net.textContent = navigator.onLine ? 'Online' : 'Offline — ဆက်သုံးလို့ရပါတယ်';
-  net.classList.toggle('off', !navigator.onLine);
+  let [txt, cls] = navigator.onLine ? ['Online', ''] : ['Offline — ဆက်သုံးလို့ရပါတယ်', 'off'];
+  if (sync.key) {
+    const st = navigator.onLine ? (syncState || 'busy') : 'offline';
+    [txt, cls] = SYNC_MSG[st] || SYNC_MSG.error;
+    const pend = Object.keys(sync.pending).length;
+    if (pend && st !== 'busy') txt += ` (${pend})`;
+  }
+  const el = $('#netStatus'); el.textContent = txt; el.classList.toggle('off', cls === 'off');
 }
+net.style.cursor = 'pointer'; net.title = 'Sync ဆက်တင်'; net.onclick = () => location.hash = 'settings';
 addEventListener('online', updateNet); addEventListener('offline', updateNet); updateNet();
 let installPrompt = null;
 const installBtn = $('#installBtn');
