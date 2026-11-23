@@ -1,7 +1,7 @@
 {
-  "name": "ဖုန်းပြင်ဆိုင် စာရင်းဇယား",
-  "short_name": "ဖုန်းဆိုင်စာရင်း",
-  "description": "ဖုန်းပြင်ဆိုင်အတွက် ပြင်ဆင်မှု၊ ပစ္စည်း၊ ငွေစာရင်း",
+  "name": "Smile Mobile",
+  "short_name": "Smile Mobile",
+  "description": "Smile Mobile — ဖုန်းပြင်ဆိုင် စာရင်းဇယား (ပြင်ဆင်မှု၊ ပစ္စည်း၊ ငွေစာရင်း)",
   "lang": "my",
   "start_url": "./",
   "scope": "./",

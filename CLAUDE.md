@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v17**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v18**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -173,7 +173,7 @@
 - **App icon** = ဆိုင်ရှင်ပေးတဲ့ **Smile Mobile logo** (1254px PNG — repo ထဲ မူရင်းမထည့်၊ `icons/icon-512.png` ကို အကြီးဆုံးအဖြစ်သုံး)။
   ထုတ်ပုံ: logo ရဲ့ အမည်းရောင် ထောင့်တွေကို rounded-rect mask နဲ့ ဖောက်ထွင်း (transparent) → `icon-192/512.png`၊
   `apple-touch-icon.png` (180, အပြာနောက်ခံ — iOS က ထောင့်ဝိုင်းပေး)၊ `maskable-512.png` (အပြာနောက်ခံ #0846E1 ပေါ် 80% — Android safe zone)။
-  Favicon = `icon-192.png`။ `icons/icon.svg` က icon အဟောင်း (မသုံးတော့)။ ⚠️ Icon ပြောင်းရင် ဖုန်းမှာ app ဖျက်ပြီး ပြန် install မှ ပြောင်း။
+  Favicon = `icon-192.png`။ App နာမည် (home screen) = **"Smile Mobile"** (`manifest` name/short_name၊ `<title>`၊ `apple-mobile-web-app-title`)။ `icons/icon.svg` က icon အဟောင်း (မသုံးတော့)။ ⚠️ Icon ပြောင်းရင် ဖုန်းမှာ app ဖျက်ပြီး ပြန် install မှ ပြောင်း။
 
 ## ဖွင့်သုံးနည်း
 - **စမ်းကြည့်ရုံ**: `index.html` ကို browser ဖြင့် ဖွင့်ပါ (offline/install မပါ)။
