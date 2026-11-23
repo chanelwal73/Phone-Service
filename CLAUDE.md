@@ -87,6 +87,11 @@
 - Screen ပြောင်းတာ hash routing (`#received`, `#completed`, `#income`, `#expenses`, `#damaged`,
   `#profit`, `#parts`, `#settings`)။ List screen ၆ ခုက `VIEWS` config တစ်ခုတည်းကနေ render လုပ်တယ်။
 - **External library မသုံး** (offline အလုပ်လုပ်ရမယ်)။
+- **Design / Icons** (ဆိုင်ရှင် "icon/button အလန်းလေး" တောင်းဆိုချက်): emoji မသုံး — **Lucide icons** (lucide-static 1.70.0,
+  ISC) ကို `index.html` ထိပ်က inline SVG sprite (`<symbol id="i-…">`) အဖြစ် ထည့်ထား (offline OK)။ JS: `svgI(name)`၊
+  ဇယား action ခလုတ် `ib(name, title, fn)` — အရောင် `IB_COLOR` (printer=blue, circle-check-big=green, hand-coins=teal,
+  coins=amber, ellipsis-vertical=slate, pencil=indigo, trash-2=red)။ Icon အသစ်လိုရင် lucide-static ကနေ symbol ထပ်ထည့်ပါ။
+  Home tile တွေက `c-blue/green/teal/orange/rose/violet/amber/slate` gradient icon။ CSS "Design v2" block က အပေါ်က rule တွေကို override လုပ်တယ်။
 - **UI ဘာသာစကား**: မြန်မာဘာသာ။ ငွေ = ကျပ် (Ks)၊ comma ခြား။ ရက်စွဲပြပုံ `dd-mm-yyyy`။
 - **စာလုံး/စာရိုက်ကွက် အရွယ်** (ဆိုင်ရှင် "သေးတယ်" လို့ ပြောပြီး ကြီးထားတာ): `html { font-size:18px }`၊ input/button
   အမြင့် ≥46px၊ size တွေအားလုံး `rem` နဲ့ ရေးပါ (px မသုံးရ — ဘောင်ချာ print မှလွဲ)။ ဆက်တင်မှာ **စာလုံးအရွယ်**
