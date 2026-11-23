@@ -29,6 +29,7 @@
   :root { --bg:#eef0f4; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#dfe3ea; --nav:#1f2433;
           --accent:#2563eb; --green:#16a34a; --red:#dc2626; }
   * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
   html { font-size:18px; } /* ဆက်တင်က စာလုံးအရွယ် ရွေးရင် ဒါကို ပြောင်းတယ် */
   body { margin:0; font-family:var(--font);
          background:var(--bg); color:var(--text); line-height:1.6; }
@@ -106,8 +107,15 @@
   .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .nowrap { white-space:nowrap; }
   .acts { white-space:nowrap; }
+  /* Actions column ကို ညာဘက်မှာ ကပ်ထား — column များရင်လည်း ခလုတ်တွေ အမြဲမြင်ရ */
+  #listTable th:last-child, #listTable td.acts { position:sticky; right:0; box-shadow:-6px 0 8px -6px rgba(0,0,0,.25); }
+  #listTable th:last-child { z-index:2; }
+  #listTable td.acts { background:var(--card); z-index:1; }
+  #listTable tbody tr:nth-child(even) td.acts { background:#f8fafc; }
+  #listTable tbody tr:hover td.acts { background:#eef2ff; }
   .ib { border:0; background:none; cursor:pointer; font-size:1.3rem; padding:4px 8px; border-radius:6px; }
   .ib:hover { background:#dbeafe; }
+  .play { color:#16a34a; font-size:1.35rem; line-height:1; }
   .ok { color:var(--green); font-weight:600; } .bad { color:var(--red); font-weight:600; }
   .low { color:var(--red); font-weight:700; }
   .empty { padding:40px; text-align:center; color:var(--muted); }
@@ -129,6 +137,11 @@
   .profitbox { display:flex; flex-direction:column; justify-content:center; background:#f0fdf4; border:1px solid #bbf7d0;
                border-radius:8px; padding:4px 12px; }
   .profitbox .l { font-size:.95rem; color:var(--muted); } .profitbox .v { font-size:1.5rem; font-weight:700; }
+  .pickrow { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-top:12px; padding:10px 12px;
+             border:1px solid var(--line); border-radius:10px; background:#f8fafc; }
+  .pickrow .radio { margin:0; font-weight:600; }
+  .tag { display:inline-block; padding:1px 10px; border-radius:99px; font-size:.85rem; white-space:nowrap; }
+  .tag.wait { background:#fef3c7; color:#92400e; } .tag.out { background:#dcfce7; color:#166534; }
   .dlg-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:16px; }
 
   /* Profit */
@@ -231,6 +244,7 @@
       <span class="lbl">Search By:</span>
       <select id="searchBy"></select>
       <input id="searchText" placeholder="🔍 Search..." style="min-width:180px">
+      <select id="stFilter" hidden></select>
       <span id="dateFilter" class="toolbar" style="margin:0">
         <span class="lbl">ရက်စွဲ</span><input type="date" id="dFrom"><span class="lbl">မှ</span><input type="date" id="dTo">
         <button class="btn sec sm" id="dClear" title="ရက်စွဲ filter ဖြုတ်">✕</button>
@@ -339,6 +353,7 @@
       <label class="full">အကြောင်းအရာ (ပြဿနာ)<input name="problem" required placeholder="ဥပမာ tlcd, bt, no power"></label>
       <label>ခန့်မှန်းကုန်ကျငွေ (Ks)<input type="number" name="estimate" min="0" step="1" value="0"></label>
       <label>စရံငွေ (Ks)<input type="number" name="deposit" min="0" step="1" value="0"></label>
+      <label class="full">မှတ်ချက်<input name="note" placeholder="ဥပမာ screen ကွဲပြီးသား၊ sim ပါ"></label>
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
@@ -351,11 +366,10 @@
 <!-- Done (complete / pickup) dialog -->
 <dialog id="doneDlg">
   <form id="doneForm">
-    <h3>▶ ပြင်ပြီး / ဖုန်းထုတ်ယူ</h3>
+    <h3>▶ ပြုပြင်ပြီးစာရင်းသို့ ထည့်ရန်</h3>
     <input type="hidden" name="id">
     <div class="info" id="doneInfo"></div>
     <div class="grid">
-      <label>ဖုန်းထုတ်ယူသည့်ရက်<input type="date" name="pickupDate" required></label>
       <label>ပြုပြင်မှုအခြေအနေ
         <select name="result"><option value="success">အောင်မြင်</option><option value="fail">မအောင်မြင်</option></select></label>
       <label class="full">လဲထည့်သည့်ပစ္စည်း / ပြင်ခဲ့သည့်အကြောင်းအရာ<input name="partName" placeholder="ဥပမာ tlcd, battery"></label>
@@ -372,11 +386,42 @@
         <label>အရေအတွက်<input type="number" name="dQty" min="0" step="1" value="1"></label>
       </div>
     </details>
+    <div class="pickrow">
+      <label class="radio"><input type="checkbox" name="pickNow"> ဖောက်သည် ဖုန်းယူသွားပြီ (ထုတ်ပေးပြီး)</label>
+      <label id="pickDateWrap">ထုတ်ပေးသည့်ရက်<input type="date" name="pickupDate"></label>
+    </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn ghost" type="submit" value="print">သိမ်းပြီး 🖨 Print</button>
       <button class="btn green" type="submit" value="save">သိမ်းမည်</button>
     </div>
+  </form>
+</dialog>
+
+<!-- Pickup (ဖုန်းပြန်ထုတ်ပေး) dialog -->
+<dialog id="pickDlg">
+  <form id="pickForm">
+    <h3>📤 ဖုန်းပြန်ထုတ်ပေးရန်</h3>
+    <input type="hidden" name="id">
+    <div class="info" id="pickInfo"></div>
+    <div class="grid">
+      <label>ထုတ်ပေးသည့်ရက်<input type="date" name="pickupDate" required></label>
+      <div class="profitbox" id="pickDue"></div>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
+      <button class="btn ghost" type="submit" value="print">ထုတ်ပေးပြီး 🖨 Print</button>
+      <button class="btn green" type="submit" value="save">ထုတ်ပေးမည်</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ⚙ more menu -->
+<dialog id="moreDlg" style="width:min(420px, calc(100vw - 16px))">
+  <form method="dialog" style="display:grid;gap:10px">
+    <h3 id="moreTitle" style="margin-bottom:4px"></h3>
+    <button class="btn" type="button" id="moreUnpick" style="background:#7c3aed">↩ ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်ရန်</button>
+    <button class="btn" type="button" id="moreReopen" style="background:#eab308;color:#1d2230">🔧 ပြုပြင်ဆဲစာရင်းသို့ ပြောင်းရန်</button>
+    <button class="btn sec" type="button" data-close>ပိတ်မည်</button>
   </form>
 </dialog>
 
@@ -509,6 +554,12 @@ const C = {
   deposit:    { label: 'စရံ', get: r => r.deposit, money: true },
   date:       { label: 'ဖုန်းအပ်သည့်ရက်', get: r => r.date, date: true },
   pickup:     { label: 'ဖုန်းထုတ်ယူသည့်ရက်', get: r => r.pickupDate, date: true },
+  pickState:  { label: 'ဖုန်းထုတ်ယူသည့်ရက်', get: r => r.status === 'done' ? fmtD(r.pickupDate) : 'မထုတ်ရသေး',
+                html: r => r.status === 'done' ? `<span class="tag out">${fmtD(r.pickupDate)}</span>` : '<span class="tag wait">မထုတ်ရသေး</span>' },
+  repairDesc: { label: 'ပြုပြင်သည့်အကြောင်းအရာ', get: r => r.partName || r.problem },
+  hasDmg:     { label: 'ပျက်စီးမှု', get: r => dmg(r) > 0 ? 'ရှိ' : 'မရှိ',
+                html: r => dmg(r) > 0 ? `<span class="bad">ရှိ (${num(dmg(r))})</span>` : 'မရှိ' },
+  note:       { label: 'မှတ်ချက်', get: r => r.note },
   result:     { label: 'ပြုပြင်မှုအခြေအနေ', get: r => r.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်',
                 html: r => `<span class="${r.result === 'fail' ? 'bad' : 'ok'}">${r.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်'}</span>` },
   partName:   { label: 'လဲထည့်သည့်ပစ္စည်း', get: r => r.partName },
@@ -532,29 +583,37 @@ const C = {
   pSell:      { label: 'ရောင်းဈေး', get: r => r.sell, money: true },
   pValue:     { label: 'တန်ဖိုး', get: r => n(r.buy) * n(r.qty), money: true },
 };
-const ib = (icon, title, fn) => `<button class="ib" title="${title}" onclick="${fn}">${icon}</button>`;
-const doneJobs = () => db.jobs.filter(j => j.status === 'done');
+const ib = (icon, title, fn) => `<button class="ib" title="${title}" onclick="${fn}">${icon === '▶' ? '<span class="play">▶</span>' : icon}</button>`;
+// အခြေအနေ: open = ပြုပြင်ဆဲ → repaired = ပြုပြင်ပြီး (ဆိုင်မှာရှိဆဲ) → done = ဖောက်သည် ထုတ်ယူပြီး
+const doneJobs = () => db.jobs.filter(j => j.status === 'done');                       // ထုတ်ပြီး (ဝင်ငွေ/အမြတ်)
+const repairedJobs = () => db.jobs.filter(j => j.status === 'repaired' || j.status === 'done');
+const due = j => total(j) - n(j.deposit);                                              // ဖောက်သည် ပေးရန်ကျန်
 
 // ================= List views =================
 const VIEWS = {
   received: {
     title: 'ဖုန်းပြင်လက်ခံစာရင်း', dateKey: 'date', add: () => openJob(),
     rows: () => db.jobs.filter(j => j.status === 'open'),
-    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.estimate, C.date],
-    acts: r => ib('🖨', 'လက်ခံဘောင်ချာ Print', `printJob('${r.id}')`) + ib('▶', 'ပြင်ပြီး / ထုတ်ယူ', `openDone('${r.id}')`) +
+    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.estimate, C.date, C.note],
+    acts: r => ib('🖨', 'လက်ခံဘောင်ချာ Print', `printJob('${r.id}')`) + ib('▶', 'ပြုပြင်ပြီးစာရင်းသို့ ပြောင်းရန်', `openDone('${r.id}')`) +
                ib('✏️', 'ပြင်ရန်', `openJob('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
     stats: rows => [['gray', 'လက်ခံထားဆဲ ဖုန်း', rows.length + ' လုံး'], ['blue', 'ခန့်မှန်းငွေ စုစုပေါင်း', ks(sum(rows, r => r.estimate))],
                     ['purple', 'စရံငွေ စုစုပေါင်း', ks(sum(rows, r => r.deposit))]],
   },
   completed: {
-    title: 'ဖုန်းပြုပြင်ပြီးသောစာရင်း', dateKey: 'pickupDate',
-    rows: doneJobs,
-    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.date, C.pickup, C.result],
-    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('💰', 'ငွေ/ထုတ်ယူ ပြင်ရန်', `openDone('${r.id}')`) +
-               ib('✏️', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('↩️', 'လက်ခံစာရင်းသို့ ပြန်ပို့', `undoDone('${r.id}')`) +
-               ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
-    stats: rows => [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['purple', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
-                    ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))], ['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))]],
+    title: 'ဖုန်းပြုပြင်ပြီးသောစာရင်း', dateOf: r => r.repairedDate || r.pickupDate || r.date,
+    rows: repairedJobs,
+    statusFilter: { all: ['အားလုံး', () => true], wait: ['📦 ထုတ်ရန်ကျန် (ဆိုင်မှာရှိ)', r => r.status === 'repaired'],
+                    out: ['✅ ထုတ်ပြီး', r => r.status === 'done'] },
+    cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.repairDesc, C.partFee, C.serviceFee, C.total, C.hasDmg, C.tech, C.date, C.pickState, C.result],
+    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) +
+               (r.status === 'repaired' ? ib('▶', 'ဖုန်းပြန်ထုတ်ပေးရန်', `openPick('${r.id}')`) : '') +
+               ib('💰', 'ပစ္စည်းဖိုး/လက်ခ ပြင်ရန်', `openDone('${r.id}')`) + ib('⚙️', 'အခြား', `openMore('${r.id}')`) +
+               ib('✏️', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
+    stats: rows => { const w = rows.filter(r => r.status === 'repaired');
+      return [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['purple', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
+              ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))], ['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))],
+              ['gray', `ထုတ်ရန်ကျန် ${w.length} လုံး`, ks(sum(w, due))]]; },
   },
   income: {
     title: 'ဝင်ငွေစာရင်း', dateKey: 'pickupDate',
@@ -572,8 +631,8 @@ const VIEWS = {
     stats: rows => [['red', 'အသုံးစရိတ်စုစုပေါင်း', ks(sum(rows, r => r.amount))]],
   },
   damaged: {
-    title: 'ပျက်စီးဆုံးရှုံးမှုစာရင်း', dateKey: 'pickupDate',
-    rows: () => doneJobs().filter(j => dmg(j) > 0),
+    title: 'ပျက်စီးဆုံးရှုံးမှုစာရင်း', dateOf: r => r.repairedDate || r.pickupDate || r.date,
+    rows: () => repairedJobs().filter(j => dmg(j) > 0),
     cols: [C.vr, C.model, C.problem, C.dPart, C.dValue, C.dQty, C.dAmount, C.tech, C.date, C.pickup],
     acts: r => ib('💰', 'ပြင်ရန်', `openDone('${r.id}')`),
     stats: rows => [['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))]],
@@ -597,20 +656,24 @@ function setupList(v) {
   sel.innerHTML = cfg.cols.map((c, i) => `<option value="${i}">${c.label}</option>`).join('');
   sel.value = cfg.defaultSearch || 0;
   $('#searchText').value = ''; $('#dFrom').value = ''; $('#dTo').value = '';
-  $('#dateFilter').hidden = !cfg.dateKey;
+  $('#dateFilter').hidden = !(cfg.dateKey || cfg.dateOf);
   $('#addBtn').hidden = !cfg.add;
+  const st = $('#stFilter'); st.hidden = !cfg.statusFilter;
+  st.innerHTML = cfg.statusFilter ? Object.entries(cfg.statusFilter).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join('') : '';
 }
 function filteredRows() {
   const cfg = VIEWS[cur];
   const col = cfg.cols[$('#searchBy').value] || cfg.cols[0];
   const q = $('#searchText').value.trim().toLowerCase();
   const from = $('#dFrom').value, to = $('#dTo').value;
+  const dOf = cfg.dateOf || (cfg.dateKey && (r => r[cfg.dateKey]));
+  const stOk = cfg.statusFilter ? cfg.statusFilter[$('#stFilter').value || 'all'][1] : () => true;
   let rows = cfg.rows().filter(r => {
-    if (cfg.dateKey) { const d = r[cfg.dateKey] || ''; if ((from && d < from) || (to && d > to)) return false; }
+    if (!stOk(r)) return false;
+    if (dOf) { const d = dOf(r) || ''; if ((from && d < from) || (to && d > to)) return false; }
     return !q || searchText(col, r).toLowerCase().includes(q);
   });
-  if (cfg.dateKey) rows = rows.slice().sort((a, b) =>
-    String(b[cfg.dateKey]).localeCompare(String(a[cfg.dateKey])) || n(b.vr) - n(a.vr));
+  if (dOf) rows = rows.slice().sort((a, b) => String(dOf(b)).localeCompare(String(dOf(a))) || n(b.vr) - n(a.vr));
   return rows;
 }
 function renderList() {
@@ -626,7 +689,7 @@ function renderList() {
        <td class="acts">${cfg.acts(r)}</td></tr>`).join('')
        : `<tr><td colspan="${cfg.cols.length + 1}" class="empty">စာရင်း မရှိပါ</td></tr>`}</tbody>`;
 }
-['#searchBy', '#searchText', '#dFrom', '#dTo'].forEach(s => $(s).addEventListener('input', renderList));
+['#searchBy', '#searchText', '#dFrom', '#dTo', '#stFilter'].forEach(s => $(s).addEventListener('input', renderList));
 $('#dClear').onclick = () => { $('#dFrom').value = ''; $('#dTo').value = ''; renderList(); };
 $('#addBtn').onclick = () => VIEWS[cur].add();
 $('#exportBtn').onclick = () => {
@@ -664,22 +727,52 @@ function delJob(id) {
   const j = byId(db.jobs, id);
   if (confirm(`Vr ${j.vr} (${j.customer}) ကို ဖျက်မှာ သေချာလား?`)) { db.jobs = db.jobs.filter(x => x.id !== id); save(); }
 }
-function undoDone(id) {
+// ⚙ menu — ပရိုဂရမ်အဟောင်းအတိုင်း
+function openMore(id) {
   const j = byId(db.jobs, id);
-  if (confirm(`Vr ${j.vr} ကို လက်ခံစာရင်းသို့ ပြန်ပို့မလား? (ငွေစာရင်းထဲကပါ ဖယ်ရှားမယ်)`)) { j.status = 'open'; save(); }
+  $('#moreTitle').textContent = `Vr ${j.vr} · ${j.customer}`;
+  $('#moreUnpick').hidden = j.status !== 'done';
+  $('#moreUnpick').onclick = () => {
+    if (!confirm(`Vr ${j.vr} ကို ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်မလား? (ဆိုင်မှာ ပြန်ရှိနေတဲ့ ပြုပြင်ပြီးစာရင်းသို့ ပြန်ရောက်မယ်၊ ဝင်ငွေထဲက ဖယ်မယ်)`)) return;
+    j.status = 'repaired'; j.pickupDate = ''; $('#moreDlg').close(); save();
+  };
+  $('#moreReopen').onclick = () => {
+    if (!confirm(`Vr ${j.vr} ကို ပြုပြင်ဆဲစာရင်း (လက်ခံစာရင်း) သို့ ပြန်ပြောင်းမလား?`)) return;
+    j.status = 'open'; j.pickupDate = ''; $('#moreDlg').close(); save();
+  };
+  $('#moreDlg').showModal();
 }
+// 📤 ဖုန်းပြန်ထုတ်ပေး — ထုတ်တဲ့နေ့ ရွေးရမယ် (လကုန်စာရင်းချုပ်ရင် ရက်ဟောင်းတွေ ဆက်တိုက်ထည့်လို့ နောက်ဆုံးရွေးတဲ့ရက်ကို မှတ်ထား)
+let lastPickDate = '';
+function openPick(id) {
+  const j = byId(db.jobs, id), f = $('#pickForm'); f.reset();
+  fillForm(f, { id, pickupDate: lastPickDate || today() });
+  $('#pickInfo').innerHTML = `<b>Vr ${esc(j.vr)}</b> · ${esc(j.customer)} · ${esc(j.phone)}<br>${esc(j.model)} · ${esc(j.partName || j.problem)}
+    <br><span class="count">ကျသင့်ငွေ ${ks(total(j))}${n(j.deposit) ? ` · စရံ ${ks(j.deposit)}` : ''}</span>`;
+  $('#pickDue').innerHTML = `<span class="l">ဖောက်သည်ဆီက ယူရမည့်ငွေ</span><span class="v ok">${ks(due(j))}</span>`;
+  $('#pickDlg').showModal();
+}
+$('#pickForm').onsubmit = e => {
+  e.preventDefault();
+  const d = formData(e.target), j = byId(db.jobs, d.id), print = e.submitter?.value === 'print';
+  lastPickDate = d.pickupDate === today() ? '' : d.pickupDate;
+  Object.assign(j, { status: 'done', pickupDate: d.pickupDate });
+  $('#pickDlg').close(); save();
+  if (print) printJob(j.id);
+};
 
 // ---- Done dialog ----
 function openDone(id) {
   const j = byId(db.jobs, id), f = $('#doneForm'); f.reset();
   // ဖုန်းအပ်တုန်းက ထည့်ထားတာတွေ (တောင်းထားတဲ့ဈေး၊ အကြောင်းအရာ) ကို အလိုအလျောက် ဖြည့်ထားမယ်
-  const done = j.status === 'done';
-  fillForm(f, { id, pickupDate: j.pickupDate || today(), result: j.result || 'success',
+  const done = j.status !== 'open';   // ပြုပြင်ပြီးသား (ငွေပြင်ရန် ပြန်ဖွင့်တာ)
+  fillForm(f, { id, pickupDate: j.pickupDate || lastPickDate || today(), result: j.result || 'success',
     partName: j.partName || j.problem || '', charge: done ? total(j) : n(j.estimate), partFee: done ? n(j.partFee) : 0,
     dPart: j.damage?.part || '', dValue: j.damage?.value || 0, dQty: j.damage?.qty || 1 });
   $('#doneInfo').innerHTML = `<b>Vr ${esc(j.vr)}</b> · ${esc(j.customer)} · ${esc(j.model)} · ${esc(j.problem)}<br>
     <span class="count">တောင်းထားသည့်ဈေး (ခန့်မှန်းငွေ) ${ks(j.estimate)} · စရံ ${ks(j.deposit)}</span>`;
   $('#dmgBox').open = !!j.damage;
+  f.elements.pickNow.checked = j.status === 'done'; $('#pickDateWrap').hidden = j.status !== 'done';
   updDoneSum(); $('#doneDlg').showModal();
   f.elements.partFee.focus(); f.elements.partFee.select();
 }
@@ -692,10 +785,14 @@ function updDoneSum() {
     ? `<span>စရံ: ${ks(j.deposit)}</span><span>ဖောက်သည် ပေးရန်ကျန်: ${ks(charge - n(j.deposit))}</span>` : '';
 }
 $('#doneForm').addEventListener('input', updDoneSum);
+$('#doneForm').elements.pickNow.onchange = e => { $('#pickDateWrap').hidden = !e.target.checked; };
 $('#doneForm').onsubmit = e => {
   e.preventDefault();
   const d = formData(e.target), j = byId(db.jobs, d.id), print = e.submitter?.value === 'print';
-  Object.assign(j, { status: 'done', pickupDate: d.pickupDate, result: d.result, partName: d.partName,
+  const pick = e.target.elements.pickNow.checked;
+  if (pick && !d.pickupDate) return alert('ထုတ်ပေးသည့်ရက် ရွေးပါ');
+  Object.assign(j, { status: pick ? 'done' : 'repaired', pickupDate: pick ? d.pickupDate : '',
+    repairedDate: j.repairedDate || today(), result: d.result, partName: d.partName,
     partFee: d.partFee, serviceFee: d.charge - d.partFee, // ဝင်ငွေ = ကျသင့်ငွေ၊ လက်ခ(အမြတ်) = ကျသင့်ငွေ − ပစ္စည်းဖိုး
     damage: d.dPart || d.dValue ? { part: d.dPart, value: d.dValue, qty: d.dQty || 1 } : null });
   $('#doneDlg').close(); save();
@@ -792,7 +889,7 @@ function qrSvg(text) {
   catch (e) { return ''; }
 }
 function voucherHTML(j) {
-  const s = db.settings, done = j.status === 'done', paper = s.paper || 'A5';
+  const s = db.settings, done = j.status !== 'open', paper = s.paper || 'A5';
   const cls = paper === '80mm' ? 'r80' : paper === 'A4' ? 'a4' : 'a5';
   const charge = total(j), dep = n(j.deposit);
   const logo = s.logo || 'icons/voucher-logo.svg';
@@ -803,7 +900,7 @@ function voucherHTML(j) {
     ${done ? `<div class="vtitle">ငွေရှင်း ဘောင်ချာ</div>` : ''}<hr>
     <div class="vmeta">
       <div>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b></div>
-      <div class="r">Date: <b>${fmtD(done ? j.pickupDate : j.date)}</b><br>Vr.No: <b>${esc(j.vr)}</b></div>
+      <div class="r">Date: <b>${fmtD(done ? (j.pickupDate || today()) : j.date)}</b><br>Vr.No: <b>${esc(j.vr)}</b></div>
     </div>`;
   // ဖောက်သည်ကို ပစ္စည်းဖိုး/အမြတ် မပြ — ကျသင့်ငွေ တစ်ခုတည်းပြ
   const table = done
@@ -912,7 +1009,8 @@ function renderHome() {
   $('#brandName').textContent = db.settings.shopName;
   const t = today(), done = doneJobs().filter(j => j.pickupDate === t);
   const items = [['ယနေ့ လက်ခံ', db.jobs.filter(j => j.date === t).length + ' လုံး'], ['ယနေ့ ထုတ်ယူ', done.length + ' လုံး'],
-    ['ယနေ့ ဝင်ငွေ', ks(sum(done, total))], ['လက်ခံထားဆဲ', db.jobs.filter(j => j.status === 'open').length + ' လုံး']];
+    ['ယနေ့ ဝင်ငွေ', ks(sum(done, total))], ['ပြုပြင်ဆဲ', db.jobs.filter(j => j.status === 'open').length + ' လုံး'],
+    ['ပြင်ပြီး ထုတ်ရန်ကျန်', db.jobs.filter(j => j.status === 'repaired').length + ' လုံး']];
   $('#todayStats').innerHTML = items.map(([l, v]) => `<div><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
   const old = !db.lastBackup || (Date.now() - new Date(db.lastBackup)) > 7 * 864e5;
   $('#backupNotice').innerHTML = old && db.jobs.length

@@ -55,9 +55,11 @@
 { version: 2, nextVr: 1001, lastBackup,
   settings: { shopName, phone, address, note, technicians: [] },
   jobs: [{ id, vr, date /*အပ်ရက်*/, customer, phone, model, imei, problem, tech, estimate, deposit,
-           status: 'open' | 'done',
-           // status = 'done' ဖြစ်မှ
-           result: 'success' | 'fail', pickupDate, partName, partFee, serviceFee,
+           note,                                   // မှတ်ချက်
+           status: 'open' | 'repaired' | 'done',  // ပြုပြင်ဆဲ → ပြုပြင်ပြီး (ဆိုင်မှာရှိ) → ထုတ်ပြီး
+           // status ≠ 'open' ဖြစ်မှ
+           result: 'success' | 'fail', repairedDate, partName, partFee, serviceFee,
+           pickupDate,                             // status = 'done' ဖြစ်မှ (ထုတ်ပေးသည့်ရက်)
            damage: { part, value, qty } | null }],
   expenses: [{ id, date, desc, amount }],
   parts: [{ id, name, qty, min, buy, sell }] }
@@ -67,7 +69,16 @@
   `ကျသင့်ငွေ` = `estimate` (ဖောက်သည်ဆီ တောင်းထားတဲ့ဈေး)၊ `partName` = `problem` ကို အလိုအလျောက်ဖြည့်၊
   cursor က ပစ္စည်းဖိုးမှာ။ ပစ္စည်းဖိုး ရိုက်တာနဲ့ **အမြတ် (လက်ခ) = ကျသင့်ငွေ − ပစ္စည်းဖိုး** ကို ဘေးမှာ ချက်ချင်းပြ။
   သိမ်းရင် `serviceFee = charge − partFee` (ဥပမာ 40,000 တောင်း၊ ပစ္စည်းဖိုး 20,000 → အမြတ် 20,000)။
-- ပြုပြင်ပြီး/ဝင်ငွေ/ပျက်စီးမှု/အရှုံးအမြတ် အားလုံးက **ထုတ်ယူရက် (`pickupDate`)** နဲ့ တွက်တယ်
+- **အဆင့် ၃ ဆင့်** (ပရိုဂရမ်အဟောင်းအတိုင်း — ဆိုင်က **လကုန်မှ** စာရင်းချုပ်တယ်):
+  1. လက်ခံစာရင်း ▶ "ပြုပြင်ပြီးစာရင်းသို့ ပြောင်းရန်" → ပစ္စည်းဖိုး ထည့် → `repaired` (`repairedDate` = ယနေ့)
+     (dialog ထဲ "ဖောက်သည် ဖုန်းယူသွားပြီ" အမှန်ခြစ်ရင် ရက်ရွေးပြီး တန်း `done`)
+  2. ပြုပြင်ပြီးစာရင်း — ငွေနဲ့ ဖုန်းအလုံးရေ တိုက်စစ် (filter: အားလုံး / ထုတ်ရန်ကျန် / ထုတ်ပြီး၊ card "ထုတ်ရန်ကျန် N လုံး")
+     → ▶ "ဖုန်းပြန်ထုတ်ပေးရန်" → **ထုတ်ပေးသည့်ရက် ရွေး** (နောက်ဆုံးရွေးတဲ့ ရက်ဟောင်းကို မှတ်ထား) → `done`
+  3. ⚙ menu: "ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်ရန်" (done → repaired) / "ပြုပြင်ဆဲစာရင်းသို့ ပြောင်းရန်" (→ open)
+- **ဝင်ငွေ/အရှုံးအမြတ်** = `done` (ထုတ်ပြီး) သာ၊ **ထုတ်ယူရက် (`pickupDate`)** နဲ့ တွက်။ ပြုပြင်ပြီး/ပျက်စီးမှု list က `repaired` + `done`
+- `repaired` ဘောင်ချာ print = ငွေရှင်းဘောင်ချာ (ရက် = ယနေ့)
+- ⚠️ `status: 'repaired'` က အသစ်ထည့်တဲ့ တန်ဖိုး (data key မပြောင်း — data ဟောင်း အကုန် valid)။ app ဟောင်းကို update မလုပ်ရသေးတဲ့ စက်က
+  `repaired` ကို မမြင်ရ → Update bar နဲ့ update ခိုင်းပါ
 - Vr No. = `nextVr` ကနေ အစဉ်လိုက် (1001, 1002, ...)
 - `_v1` data ရှိရင် အလိုအလျောက် v2 ကို migrate လုပ်တယ် (`migrateV1`)
 
@@ -158,6 +169,7 @@
 - [x] လက်ရှိ program ရဲ့ screen ၆ ခု ပုံစံ (v2)
 - [x] ဘောင်ချာ print (လက်ခံ / ထုတ်ယူ)
 - [x] ဘောင်ချာ ပုံစံကို ဆိုင်ရဲ့ အစစ်အတိုင်း ညှိ (barcode + QR + ဖြတ်ပိုင်း)
+- [x] ပြုပြင်ပြီး ↔ ထုတ်ပြီး ခွဲခြား (လကုန်စာရင်းချုပ် workflow)၊ ⚙ menu၊ မှတ်ချက်၊ Actions column ညာဘက်ကပ်
 - [ ] လက်ရှိ program ရဲ့ Excel data import
 - [ ] လဲထည့်တဲ့ပစ္စည်းကို stock ထဲက အလိုအလျောက် နုတ်ခြင်း
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
