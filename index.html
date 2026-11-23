@@ -146,6 +146,7 @@
   #printArea { display:none; }
   @media print {
     body > *:not(#printArea) { display:none !important; }
+    html, body { background:#fff !important; }   /* print မှာ မီးခိုးရောင်နောက်ခံ မပါအောင် */
     #printArea { display:block; }
   }
   /* ---- ဘောင်ချာ (ဆိုင်ရဲ့ ဘောင်ချာ အစစ်ပုံစံအတိုင်း) ---- */
@@ -814,7 +815,7 @@ function voucherHTML(j) {
     <div class="vstitle">Service Information</div>
     <div class="vmeta">
       <div>Vr.No: <b>${esc(j.vr)}</b><br>ဖုန်းအမျိုးအစား: <b>${esc(j.model)}</b><br>အကြောင်းအရာ: <b>${esc(j.problem)}</b>
-        ${j.imei ? `<br>IMEI: <b>${esc(j.imei)}</b>` : ''}${j.tech ? `<br>Service ဆရာ: <b>${esc(j.tech)}</b>` : ''}</div>
+        ${j.imei ? `<br>IMEI: <b>${esc(j.imei)}</b>` : ''}</div>
       <div class="r">Date: <b>${fmtD(j.date)}</b><br>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b>
         <br>ခန့်မှန်း: <b>${num(j.estimate)} Ks</b></div>
     </div>` : '';
