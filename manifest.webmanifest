@@ -1,13 +1,13 @@
 {
-  "name": "ဖုန်းပြင်ဆိုင် စာရင်းဇယား",
-  "short_name": "ဖုန်းဆိုင်စာရင်း",
-  "description": "ဖုန်းပြင်ဆိုင်အတွက် ပြင်ဆင်မှု၊ ပစ္စည်း၊ ငွေစာရင်း",
+  "name": "Smile Mobile",
+  "short_name": "Smile Mobile",
+  "description": "Smile Mobile — ဖုန်းပြင်ဆိုင် စာရင်းဇယား (ပြင်ဆင်မှု၊ ပစ္စည်း၊ ငွေစာရင်း)",
   "lang": "my",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f5f6f8",
-  "theme_color": "#2563eb",
+  "theme_color": "#1e3a8a",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

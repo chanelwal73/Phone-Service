@@ -40,7 +40,7 @@
 **Dev workflow**
 - Branch `claude/phone-repair-inventory-tool-tpetc0` (သို့ session က ပေးတဲ့ branch) → commit → PR → ဆိုင်ရှင် merge
 - Merge ပြီးတိုင်း branch ကို `main` နဲ့ fast-forward လုပ်ပါ (force-push မလုပ်)
-- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v15**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
+- Code ပြင်တိုင်း `sw.js` VERSION တိုး (လက်ရှိ **v18**) — မတိုးရင် ဆိုင်ရှင်စက်မှာ Update bar မပေါ်
 - စမ်းနည်း: Playwright (headless Chromium) + `python3 -m http.server`၊ sync ကို `wrangler pages dev` (အောက်မှာကြည့်)
 
 ## လုပ်ငန်းစဉ် (Workflow)
@@ -149,7 +149,7 @@
   - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI | Date၊ Customer၊ Contact၊ ခန့်မှန်း
     (**Service ဆရာ နာမည် ဘောင်ချာမှာ မထည့်ရ** — ဆိုင်ရှင် တောင်းဆိုချက်)
   - ငွေရှင်း ဘောင်ချာ (ထုတ်ယူပြီး): ကျသင့်ငွေ၊ စရံ၊ ပေးရန်ကျန် **သာ** — ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
-  - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
+  - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL — **Home header card မှာလည်း ပြ**၊ home-screen app icon ကတော့ မပြောင်း)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
   - Default logo `icons/voucher-logo.svg` (အဖြူအမည်း line-art — အပြာ icon က B&W printer မှာ မည်းထွက်လို့)
   - Barcode: `code128Svg()` ကိုယ်တိုင်ရေး (Code 128-B)။ QR: `vendor/qrcode.js` (qrcode-generator 2.0.4, MIT)။
     zxing-cpp နဲ့ decode စစ်ပြီး။ Barcode scanner နဲ့ ဖတ်ရင် Search (Vr No.) ထဲ ရိုက်ထည့်ပေးလို့ ရှာလို့ရ။
@@ -170,7 +170,10 @@
 - ယနေ့ရက်စွဲကို local time နဲ့ ယူပါ (`today()`) — `toISOString()` တိုက်ရိုက်မသုံးရ (UTC ဖြစ်သွားတယ်)။
 - CLAUDE.md ကို feature အသစ်ထည့်တိုင်း update လုပ်ပါ။
 - App ဖိုင် ပြင်တိုင်း `sw.js` ထဲက `VERSION` ကို တိုးပါ။ ဖိုင်အသစ်ထည့်ရင် `FILES` list ထဲလည်း ထည့်ပါ။
-- Icon ပြောင်းရင် `icons/icon.svg` ကို ပြင်ပြီး PNG တွေကို ပြန် generate လုပ်ပါ။
+- **App icon** = ဆိုင်ရှင်ပေးတဲ့ **Smile Mobile logo** (1254px PNG — repo ထဲ မူရင်းမထည့်၊ `icons/icon-512.png` ကို အကြီးဆုံးအဖြစ်သုံး)။
+  ထုတ်ပုံ: logo ရဲ့ အမည်းရောင် ထောင့်တွေကို rounded-rect mask နဲ့ ဖောက်ထွင်း (transparent) → `icon-192/512.png`၊
+  `apple-touch-icon.png` (180, အပြာနောက်ခံ — iOS က ထောင့်ဝိုင်းပေး)၊ `maskable-512.png` (အပြာနောက်ခံ #0846E1 ပေါ် 80% — Android safe zone)။
+  Favicon = `icon-192.png`။ App နာမည် (home screen) = **"Smile Mobile"** (`manifest` name/short_name၊ `<title>`၊ `apple-mobile-web-app-title`)။ `icons/icon.svg` က icon အဟောင်း (မသုံးတော့)။ ⚠️ Icon ပြောင်းရင် ဖုန်းမှာ app ဖျက်ပြီး ပြန် install မှ ပြောင်း။
 
 ## ဖွင့်သုံးနည်း
 - **စမ်းကြည့်ရုံ**: `index.html` ကို browser ဖြင့် ဖွင့်ပါ (offline/install မပါ)။
