@@ -1,10 +1,10 @@
 // Offline cache. ဖိုင်တစ်ခုခု ပြင်တိုင်း VERSION ကို တိုးပါ (ဒါမှ ဖုန်းတွေမှာ update ရမယ်)
-const VERSION = 'v5';
+const VERSION = 'v7';
 const CACHE = 'phone-service-' + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png',
   './fonts/padauk-myanmar-400.woff2', './fonts/padauk-myanmar-700.woff2', './fonts/padauk-latin-400.woff2',
-  './fonts/padauk-latin-700.woff2', './fonts/akkhayar-robo.woff2'];
+  './fonts/padauk-latin-700.woff2', './fonts/akkhayar-robo.woff2', './vendor/qrcode.js', './icons/icon.svg', './icons/voucher-logo.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
