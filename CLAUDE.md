@@ -90,7 +90,8 @@
 - **ဘောင်ချာ** (ဆိုင်ရှင်ပေးတဲ့ ဘောင်ချာ အစစ် နမူနာအတိုင်း — `voucherHTML()`):
   - အပေါ်ပိုင်း (ဖောက်သည်အတွက်): Logo + ဆိုင်အမည် + ဖုန်း → လိပ်စာ (အလယ်) → Customer/Contact | Date/Vr.No →
     ဇယား (ဖုန်းအမျိုးအစား | အကြောင်းအရာ | ခန့်မှန်းကုန်ကျငွေ) → မှတ်ချက် (default: "တစ်လကျော်သည့် ဖုန်းများကို တာဝန်မယူပါ။" — ဆိုင်ရှင်ရွေးထား) → **Barcode (Code128) + QR** (Vr No.)
-  - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI၊ ဆရာ | Date၊ Customer၊ Contact၊ ခန့်မှန်း
+  - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI | Date၊ Customer၊ Contact၊ ခန့်မှန်း
+    (**Service ဆရာ နာမည် ဘောင်ချာမှာ မထည့်ရ** — ဆိုင်ရှင် တောင်းဆိုချက်)
   - ငွေရှင်း ဘောင်ချာ (ထုတ်ယူပြီး): ကျသင့်ငွေ၊ စရံ၊ ပေးရန်ကျန် **သာ** — ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
   - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL)၊ စက္ကူ **A5** (ဆိုင်ရှင် အတည်ပြုပြီး၊ default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
   - Default logo `icons/voucher-logo.svg` (အဖြူအမည်း line-art — အပြာ icon က B&W printer မှာ မည်းထွက်လို့)
@@ -99,7 +100,11 @@
 - **Print**: `#printArea` + `@media print`၊ `@page size` ကို စက္ကူအလိုက် `doPrint()` က ထည့်တယ်။ ပုံ load ပြီးမှ print။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။
-- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages** (sync ပါ — အဓိက) / GitHub Pages (sync မပါ)။
+- **App Update bar** (ဆိုင်ရှင် တောင်းဆိုချက်): `sw.js` VERSION ပြောင်းပြီး deploy လုပ်ရင် SW အသစ်က **waiting** မှာ
+  စောင့်နေ (auto `skipWaiting` မလုပ်) → app အပေါ်ဆုံး (topbar ထဲ) မှာ **အစိမ်းရောင် "🆕 App အသစ် ရပါပြီ — Update"** bar ပြ →
+  နှိပ်ရင် `SKIP_WAITING` message → `controllerchange` မှာ reload။ Update စစ်ချိန်: app ဖွင့်တာ၊ tab ပြန်မြင်တာ၊ ၃၀ မိနစ်တိုင်း။
+  ပထမဆုံး install မှာ bar မပြ။ ⚠️ ဒါကြောင့် **VERSION မတိုးရင် bar မပေါ်** (code စည်းမျဉ်း ကြည့်)။
+- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages `https://pk-mobile.pages.dev`** (sync ပါ — ဆိုင်က သုံးတဲ့ အဓိက link) / GitHub Pages (sync မပါ — အဟောင်း)။
   ⚠️ link မတူရင် localStorage မတူ — GitHub Pages ကထည့်ထားတဲ့ data ကို Backup → Restore နဲ့ ရွှေ့ရ။
 
 ## Code စည်းမျဉ်း
@@ -158,4 +163,4 @@
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
 - [x] GitHub Pages ပေါ် deploy (`https://chanelwal73.github.io/Phone-Service/`, `main` branch)
 - [x] စက်များကြား data sync (ဖုန်း ↔ laptop) — Cloudflare Pages Functions + D1, offline-first (code ပြီး)
-- [ ] Cloudflare Pages ပေါ် deploy + D1/Secret setup (ဆိုင်ရှင် dashboard မှာ)
+- [x] Cloudflare Pages ပေါ် deploy + D1/Secret setup — **`https://pk-mobile.pages.dev`** (project `pk-mobile`, `main` push တိုင်း auto deploy)၊ ဖုန်းမှာ Sync ✓ အတည်ပြုပြီး

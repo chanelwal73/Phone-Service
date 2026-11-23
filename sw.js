@@ -1,14 +1,17 @@
 // Offline cache. ဖိုင်တစ်ခုခု ပြင်တိုင်း VERSION ကို တိုးပါ (ဒါမှ ဖုန်းတွေမှာ update ရမယ်)
-const VERSION = 'v10';
+const VERSION = 'v12';
 const CACHE = 'phone-service-' + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png',
   './fonts/padauk-myanmar-400.woff2', './fonts/padauk-myanmar-700.woff2', './fonts/padauk-latin-400.woff2',
   './fonts/padauk-latin-700.woff2', './fonts/akkhayar-robo.woff2', './vendor/qrcode.js', './icons/icon.svg', './icons/voucher-logo.svg'];
 
+// Version အသစ်ကို ချက်ချင်း မပြောင်းဘဲ စောင့်ထား (waiting) — app ထဲက အစိမ်းရောင် "Update" bar ကို
+// နှိပ်မှ SKIP_WAITING message ပို့ပြီး ပြောင်းမယ်။ (ပထမဆုံး install ဆိုရင်တော့ ချက်ချင်း active ဖြစ်တယ်)
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));
 });
+self.addEventListener('message', e => { if (e.data === 'SKIP_WAITING') self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
     .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))

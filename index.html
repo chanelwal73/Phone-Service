@@ -39,6 +39,11 @@
   .back { background:none; border:0; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; padding:0 6px; }
   .pill { font-size:.78rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.15); }
   .pill.off { background:#fbbf24; color:var(--text); }
+  #updateBar { flex:0 0 calc(100% + 32px); margin:-10px -16px 2px; border:0; cursor:pointer; font:inherit; font-size:1rem;
+               background:#16a34a; color:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:center;
+               gap:12px; flex-wrap:wrap; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+  #updateBar[hidden] { display:none; }
+  #updateBar b { background:#fff; color:#15803d; border-radius:8px; padding:4px 14px; }
   main { padding:16px; max-width:1600px; margin:0 auto; }
   .view { display:none; } .view.active { display:block; }
 
@@ -146,6 +151,7 @@
   #printArea { display:none; }
   @media print {
     body > *:not(#printArea) { display:none !important; }
+    html, body { background:#fff !important; }   /* print မှာ မီးခိုးရောင်နောက်ခံ မပါအောင် */
     #printArea { display:block; }
   }
   /* ---- ဘောင်ချာ (ဆိုင်ရဲ့ ဘောင်ချာ အစစ်ပုံစံအတိုင်း) ---- */
@@ -188,6 +194,7 @@
 </head>
 <body>
 <div class="topbar">
+  <button id="updateBar" type="button" hidden>🆕 App အသစ် ရပါပြီ — နှိပ်ပြီး Update လုပ်ပါ <b>Update</b></button>
   <button class="back" id="backBtn" title="နောက်သို့" hidden>←</button>
   <h1 id="title">ဖုန်းပြင်ဆိုင် စာရင်း</h1>
   <span class="pill" id="netStatus">Online</span>
@@ -814,7 +821,7 @@ function voucherHTML(j) {
     <div class="vstitle">Service Information</div>
     <div class="vmeta">
       <div>Vr.No: <b>${esc(j.vr)}</b><br>ဖုန်းအမျိုးအစား: <b>${esc(j.model)}</b><br>အကြောင်းအရာ: <b>${esc(j.problem)}</b>
-        ${j.imei ? `<br>IMEI: <b>${esc(j.imei)}</b>` : ''}${j.tech ? `<br>Service ဆရာ: <b>${esc(j.tech)}</b>` : ''}</div>
+        ${j.imei ? `<br>IMEI: <b>${esc(j.imei)}</b>` : ''}</div>
       <div class="r">Date: <b>${fmtD(j.date)}</b><br>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b>
         <br>ခန့်မှန်း: <b>${num(j.estimate)} Ks</b></div>
     </div>` : '';
@@ -1090,7 +1097,30 @@ renderSyncCard();
 if (sync.key) runSync();
 
 // ================= PWA: offline + install =================
-if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+// App update: sw.js အသစ် (VERSION ပြောင်း) တွေ့ရင် အပေါ်မှာ အစိမ်းရောင် bar ပြ — နှိပ်ရင် update + reload
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  const bar = $('#updateBar');
+  let reloading = false;
+  const showIfWaiting = reg => { if (reg.waiting && navigator.serviceWorker.controller) bar.hidden = false; };
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    showIfWaiting(reg);
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w && w.addEventListener('statechange', () => { if (w.state === 'installed') showIfWaiting(reg); });
+    });
+    const check = () => reg.update().catch(() => {});
+    setInterval(check, 30 * 60 * 1000);                                   // ၃၀ မိနစ်တိုင်း update ရှိမရှိ စစ်
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+    bar.onclick = () => {
+      bar.innerHTML = '⏳ Update လုပ်နေပါတယ်...';
+      if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING'); else location.reload();
+    };
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading || bar.hidden) return;                                  // ပထမဆုံး install မှာ reload မလုပ်
+    reloading = true; location.reload();
+  });
+}
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 const net = $('#netStatus');
 function updateNet() {
