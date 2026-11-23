@@ -28,11 +28,12 @@
   :root { --bg:#eef0f4; --card:#fff; --text:#1d2230; --muted:#6b7280; --line:#dfe3ea; --nav:#1f2433;
           --accent:#2563eb; --green:#16a34a; --red:#dc2626; }
   * { box-sizing:border-box; }
+  html { font-size:18px; } /* ဆက်တင်က စာလုံးအရွယ် ရွေးရင် ဒါကို ပြောင်းတယ် */
   body { margin:0; font-family:var(--font);
          background:var(--bg); color:var(--text); line-height:1.6; }
   .topbar { background:var(--nav); color:#fff; padding:10px 16px; display:flex; align-items:center; gap:10px;
             flex-wrap:wrap; position:sticky; top:0; z-index:5; }
-  .topbar h1 { margin:0; font-size:1.1rem; flex:1; }
+  .topbar h1 { margin:0; font-size:1.25rem; flex:1; }
   h1, h2, h3, .tile, .stat .v, .stat .l, .ptable tr.net td, .period, .receipt h2 { font-family:var(--font-head); font-weight:400; }
   .back { background:none; border:0; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; padding:0 6px; }
   .pill { font-size:.78rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.15); }
@@ -56,26 +57,26 @@
   .tile.minor .ic { width:40px; height:40px; font-size:1.3rem; background:#f1f5f9; }
   .today { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:18px; }
   .today > div { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
-  .today .l { font-size:.8rem; color:var(--muted); } .today .v { font-weight:700; font-size:1.1rem; }
+  .today .l { font-size:.9rem; color:var(--muted); } .today .v { font-weight:700; font-size:1.1rem; }
   .notice { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; padding:10px 12px; border-radius:10px; margin-top:14px; }
 
   /* Controls */
-  select, input, textarea { padding:7px 9px; border:1px solid var(--line); border-radius:7px; font:inherit;
+  select, input, textarea { padding:10px 12px; min-height:46px; font-size:1.05rem !important; border:1px solid var(--line); border-radius:7px; font:inherit;
                             background:#fff; color:var(--text); }
-  .btn { border:0; background:var(--accent); color:#fff; padding:8px 14px; border-radius:8px; font:inherit;
+  .btn { border:0; background:var(--accent); color:#fff; padding:10px 18px; min-height:46px; border-radius:8px; font:inherit;
          cursor:pointer; white-space:nowrap; }
   .btn.green { background:var(--green); } .btn.sec { background:#e5e7eb; color:var(--text); }
   .btn.ghost { background:#fff; border:1px solid var(--line); color:var(--text); }
-  .btn.sm { padding:4px 10px; font-size:.85rem; }
+  .btn.sm { padding:6px 12px; font-size:.9rem; min-height:38px; }
   .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
   .toolbar .grow { flex:1; }
-  .toolbar .lbl { font-size:.85rem; color:var(--muted); }
-  .count { color:var(--muted); font-size:.85rem; }
+  .toolbar .lbl { font-size:.95rem; color:var(--muted); }
+  .count { color:var(--muted); font-size:.95rem; }
 
   /* Stat cards */
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
   .stat { border-radius:12px; padding:12px 16px; color:#fff; }
-  .stat .l { font-size:.85rem; opacity:.92; } .stat .v { font-size:1.35rem; font-weight:700; font-synthesis:none; font-variant-numeric:tabular-nums; }
+  .stat .l { font-size:.95rem; opacity:.92; } .stat .v { font-size:1.5rem; font-weight:700; font-synthesis:none; font-variant-numeric:tabular-nums; }
   .stat.green { background:linear-gradient(135deg,#15803d,#22c55e); }
   .stat.purple { background:linear-gradient(135deg,#6d28d9,#a855f7); }
   .stat.blue { background:linear-gradient(135deg,#0369a1,#0ea5e9); }
@@ -83,44 +84,45 @@
   .stat.gray { background:linear-gradient(135deg,#334155,#64748b); }
   @media (max-width:600px) {
     .stats { grid-template-columns:1fr 1fr; gap:8px; }
-    .stat { padding:8px 12px; } .stat .v { font-size:1.05rem; } .stat .l { font-size:.75rem; }
+    .stat { padding:8px 12px; } .stat .v { font-size:1.2rem; } .stat .l { font-size:.85rem; }
     main { padding:12px; }
   }
 
   /* Table */
   .tbl { background:var(--card); border-radius:10px; overflow:auto; border:1px solid var(--line);
          max-height:calc(100vh - 250px); min-height:200px; }
-  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  table { width:100%; border-collapse:collapse; font-size:1rem; }
   th { position:sticky; top:0; background:var(--nav); color:#fff; font-weight:600; text-align:left;
        padding:9px 10px; white-space:nowrap; z-index:1; }
-  td { padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
   tbody tr:nth-child(even) td { background:#f8fafc; }
   tbody tr:hover td { background:#eef2ff; }
   .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .nowrap { white-space:nowrap; }
   .acts { white-space:nowrap; }
-  .ib { border:0; background:none; cursor:pointer; font-size:1.05rem; padding:2px 6px; border-radius:6px; }
+  .ib { border:0; background:none; cursor:pointer; font-size:1.3rem; padding:4px 8px; border-radius:6px; }
   .ib:hover { background:#dbeafe; }
   .ok { color:var(--green); font-weight:600; } .bad { color:var(--red); font-weight:600; }
   .low { color:var(--red); font-weight:700; }
   .empty { padding:40px; text-align:center; color:var(--muted); }
 
   /* Dialogs */
-  dialog { border:0; border-radius:14px; padding:0; width:min(680px, calc(100vw - 20px)); max-height:calc(100vh - 20px); }
+  dialog { border:0; border-radius:14px; padding:0; width:min(780px, calc(100vw - 16px)); max-height:calc(100vh - 20px); }
   dialog::backdrop { background:rgba(15,23,42,.55); }
   dialog form { padding:18px; }
   dialog h3 { margin:0 0 12px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
   .grid .full { grid-column:1/-1; }
-  label { display:block; font-size:.82rem; color:var(--muted); }
+  label { display:block; font-size:.95rem; color:#4b5563; }
   label input, label select, label textarea { width:100%; margin-top:2px; }
-  fieldset { border:1px dashed #cbd5e1; border-radius:10px; margin:12px 0 0; padding:10px 12px; }
-  legend { font-size:.85rem; color:var(--muted); padding:0 6px; }
-  .info { background:#f1f5f9; border-radius:8px; padding:8px 12px; font-size:.9rem; margin-bottom:12px; }
+  details { border:1px dashed #cbd5e1; border-radius:10px; margin:12px 0 0; padding:10px 12px; }
+  summary { cursor:pointer; color:#4b5563; }
+  details[open] summary { margin-bottom:10px; }
+  .info { background:#f1f5f9; border-radius:8px; padding:10px 14px; font-size:1rem; margin-bottom:12px; }
   .sumline { display:flex; justify-content:flex-end; gap:18px; flex-wrap:wrap; margin-top:10px; font-weight:700; }
   .profitbox { display:flex; flex-direction:column; justify-content:center; background:#f0fdf4; border:1px solid #bbf7d0;
                border-radius:8px; padding:4px 12px; }
-  .profitbox .l { font-size:.82rem; color:var(--muted); } .profitbox .v { font-size:1.25rem; font-weight:700; }
+  .profitbox .l { font-size:.95rem; color:var(--muted); } .profitbox .v { font-size:1.5rem; font-weight:700; }
   .dlg-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:16px; }
 
   /* Profit */
@@ -130,8 +132,8 @@
   .card h3 { margin-top:0; }
   .card label { margin-bottom:10px; }
   .quick { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
-  .radio { display:flex; gap:6px; align-items:center; font-size:.9rem; color:var(--text); margin-bottom:6px; }
-  .radio input { width:auto; margin:0; }
+  .radio { display:flex; gap:8px; align-items:center; font-size:1rem; color:var(--text); margin-bottom:6px; }
+  .radio input { width:auto; margin:0; min-height:0; }
   .ptable td { font-size:1rem; padding:12px 14px; background:none !important; }
   .ptable tr.net td { font-weight:700; font-size:1.15rem; border-top:2px solid var(--text); }
   .period { font-weight:700; margin-bottom:10px; }
@@ -242,6 +244,11 @@
         <label>လိပ်စာ<textarea name="address" rows="2"></textarea></label>
         <label>ဘောင်ချာ အောက်ခြေမှတ်ချက်<textarea name="note" rows="2"></textarea></label>
         <label>Service ဆရာ စာရင်း (တစ်ကြောင်းလျှင် တစ်ယောက်)<textarea name="technicians" rows="3"></textarea></label>
+        <label>စာလုံးအရွယ် (ဒီစက်အတွက်)
+          <select id="fontSize">
+            <option value="16">သေး</option><option value="18">ပုံမှန်</option>
+            <option value="20">ကြီး</option><option value="22">အကြီးဆုံး</option>
+          </select></label>
         <button class="btn" type="submit">သိမ်းမည်</button>
         <span class="count" id="setSaved"></span>
       </form>
@@ -295,19 +302,19 @@
       <label>ပြုပြင်မှုအခြေအနေ
         <select name="result"><option value="success">အောင်မြင်</option><option value="fail">မအောင်မြင်</option></select></label>
       <label class="full">လဲထည့်သည့်ပစ္စည်း / ပြင်ခဲ့သည့်အကြောင်းအရာ<input name="partName" placeholder="ဥပမာ tlcd, battery"></label>
-      <label>ကျသင့်ငွေ — ဖောက်သည်ပေးငွေ (Ks)<input type="number" name="charge" min="0" step="1" value="0"></label>
+      <label>ကျသင့်ငွေ (Ks)<input type="number" name="charge" min="0" step="1" value="0"></label>
       <label>ပစ္စည်းဖိုး (Ks)<input type="number" name="partFee" min="0" step="1" value="0" autofocus></label>
       <div class="profitbox" id="doneProfit"></div>
     </div>
     <div class="sumline" id="doneSum"></div>
-    <fieldset>
-      <legend>ပျက်စီးဆုံးရှုံးမှု (ပြင်ရင်း ပစ္စည်းပျက်သွားမှ ဖြည့်ပါ)</legend>
+    <details id="dmgBox">
+      <summary>💥 ပျက်စီးဆုံးရှုံးမှု ရှိရင် နှိပ်ပါ (ပြင်ရင်း ပစ္စည်းပျက်သွားမှ)</summary>
       <div class="grid">
         <label class="full">ပျက်စီးခဲ့သည့်ပစ္စည်း<input name="dPart"></label>
         <label>တန်ဖိုး (Ks)<input type="number" name="dValue" min="0" step="1" value="0"></label>
         <label>အရေအတွက်<input type="number" name="dQty" min="0" step="1" value="1"></label>
       </div>
-    </fieldset>
+    </details>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
       <button class="btn ghost" type="submit" value="print">သိမ်းပြီး 🖨 Print</button>
@@ -600,6 +607,7 @@ function openDone(id) {
     dPart: j.damage?.part || '', dValue: j.damage?.value || 0, dQty: j.damage?.qty || 1 });
   $('#doneInfo').innerHTML = `<b>Vr ${esc(j.vr)}</b> · ${esc(j.customer)} · ${esc(j.model)} · ${esc(j.problem)}<br>
     <span class="count">တောင်းထားသည့်ဈေး (ခန့်မှန်းငွေ) ${ks(j.estimate)} · စရံ ${ks(j.deposit)}</span>`;
+  $('#dmgBox').open = !!j.damage;
   updDoneSum(); $('#doneDlg').showModal();
   f.elements.partFee.focus(); f.elements.partFee.select();
 }
@@ -713,6 +721,17 @@ function printJob(id) {
 function doPrint(html) { $('#printArea').innerHTML = html; setTimeout(() => window.print(), 50); }
 
 // ================= Settings / Backup =================
+// စာလုံးအရွယ်က စက်တစ်လုံးချင်း (ဖုန်း/laptop မတူနိုင်လို့) — db ထဲမထည့်ဘဲ localStorage သီးသန့်
+const FS_KEY = 'phoneServiceFontSize';
+function applyFontSize(v) { document.documentElement.style.fontSize = v + 'px'; }
+let fontSize = '18';
+try { fontSize = localStorage.getItem(FS_KEY) || '18'; } catch (e) {}
+applyFontSize(fontSize);
+$('#fontSize').value = fontSize;
+$('#fontSize').onchange = e => {
+  applyFontSize(e.target.value);
+  try { localStorage.setItem(FS_KEY, e.target.value); } catch (err) {}
+};
 function fillSettings() {
   const s = db.settings, f = $('#setForm');
   fillForm(f, { ...s, technicians: s.technicians.join('\n') });

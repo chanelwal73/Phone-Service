@@ -77,6 +77,10 @@
   `#profit`, `#parts`, `#settings`)။ List screen ၆ ခုက `VIEWS` config တစ်ခုတည်းကနေ render လုပ်တယ်။
 - **External library မသုံး** (offline အလုပ်လုပ်ရမယ်)။
 - **UI ဘာသာစကား**: မြန်မာဘာသာ။ ငွေ = ကျပ် (Ks)၊ comma ခြား။ ရက်စွဲပြပုံ `dd-mm-yyyy`။
+- **စာလုံး/စာရိုက်ကွက် အရွယ်** (ဆိုင်ရှင် "သေးတယ်" လို့ ပြောပြီး ကြီးထားတာ): `html { font-size:18px }`၊ input/button
+  အမြင့် ≥46px၊ size တွေအားလုံး `rem` နဲ့ ရေးပါ (px မသုံးရ — ဘောင်ချာ print မှလွဲ)။ ဆက်တင်မှာ **စာလုံးအရွယ်**
+  (16/18/20/22px) ရွေးလို့ရ — စက်တစ်လုံးချင်း (`localStorage` key `phoneServiceFontSize`၊ db ထဲမပါ)။
+- ထုတ်ယူ dialog မှာ ပျက်စီးမှု အပိုင်းက `<details>` (နှိပ်မှပွင့်၊ data ရှိရင် အလိုအလျောက်ပွင့်) — laptop screen ထဲ ဆံ့အောင်။
 - **Desktop + Mobile** — ဆိုင်မှာ monitor ကြီးနဲ့ ဇယားအကျယ်ကြီး သုံးတယ်၊ ဖုန်းမှာ ဇယားကို ဘေးတိုက် scroll။
 - **Font** (`fonts/`, offline cache ထဲပါ): စာသား/ဇယား = **Padauk** (SIL OFL, Regular+Bold woff2, `@fontsource/padauk` ကနေ)၊
   ခေါင်းစဉ်/card = **Akkhayar Robo** (ဆိုင်ရှင်ပေးတဲ့ font၊ "Free to use")။ Akkhayar ကို `unicode-range: U+1000-109F`
