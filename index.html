@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#1f2433">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script src="vendor/qrcode.js"></script> <!-- qrcode-generator 2.0.4, MIT © Kazuhiko Arase -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ဖုန်းဆိုင်စာရင်း">
@@ -34,7 +35,7 @@
   .topbar { background:var(--nav); color:#fff; padding:10px 16px; display:flex; align-items:center; gap:10px;
             flex-wrap:wrap; position:sticky; top:0; z-index:5; }
   .topbar h1 { margin:0; font-size:1.25rem; flex:1; }
-  h1, h2, h3, .tile, .stat .v, .stat .l, .ptable tr.net td, .period, .receipt h2 { font-family:var(--font-head); font-weight:400; }
+  h1, h2, h3, .tile, .stat .v, .stat .l, .ptable tr.net td, .period { font-family:var(--font-head); font-weight:400; }
   .back { background:none; border:0; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; padding:0 6px; }
   .pill { font-size:.78rem; padding:2px 10px; border-radius:99px; background:rgba(255,255,255,.15); }
   .pill.off { background:#fbbf24; color:var(--text); }
@@ -146,16 +147,40 @@
   @media print {
     body > *:not(#printArea) { display:none !important; }
     #printArea { display:block; }
-    @page { margin:6mm; }
   }
-  .receipt { width:72mm; font-size:12px; color:#000; line-height:1.45; }
-  .receipt h2 { text-align:center; margin:0; font-size:16px; }
-  .receipt .c { text-align:center; }
-  .receipt table { font-size:12px; width:100%; }
-  .receipt td { padding:1px 0; border:0; background:none !important; vertical-align:top; }
-  .receipt td.r { text-align:right; white-space:nowrap; }
-  .receipt hr { border:0; border-top:1px dashed #000; margin:6px 0; }
-  .receipt .big td { font-weight:700; font-size:13px; }
+  /* ---- ဘောင်ချာ (ဆိုင်ရဲ့ ဘောင်ချာ အစစ်ပုံစံအတိုင်း) ---- */
+  .vch { color:#000; font-family:var(--font); font-size:10.5pt; line-height:1.5; }
+  .vch.a5 { width:132mm; } .vch.a4 { width:180mm; font-size:12pt; } .vch.r80 { width:72mm; font-size:9.5pt; }
+  .vch .main { display:flex; flex-direction:column; }
+  .vch.a5 .main { min-height:140mm; } .vch.a4 .main { min-height:190mm; }
+  .vhead { display:flex; align-items:center; gap:6mm; }
+  .vlogo { width:22mm; height:22mm; object-fit:contain; }
+  .vshop { font-size:18pt; font-weight:700; line-height:1.3; }
+  .vaddr { text-align:center; margin-top:2mm; }
+  .vtitle { text-align:center; font-weight:700; margin-top:1mm; }
+  .vch hr { border:0; border-top:1px solid #000; margin:3mm 0; }
+  .vmeta { display:flex; justify-content:space-between; gap:4mm; }
+  .vmeta .r { text-align:right; }
+  .vtable { width:100%; border-collapse:collapse; margin-top:3mm; font-size:inherit; }
+  .vtable th, .vtable td { border:1px solid #000; padding:1.5mm 2mm; text-align:left; vertical-align:top;
+    background:none !important; color:#000; position:static; white-space:normal; font-weight:400; }
+  .vtable td { height:16mm; }
+  .vtable .r { text-align:right; white-space:nowrap; }
+  .vsum { text-align:right; margin-top:2mm; } .vsum b { font-size:1.1em; }
+  .vspacer { flex:1; min-height:6mm; }
+  .vnote { text-align:center; margin:4mm 0; }
+  .vcodes { display:flex; justify-content:space-between; align-items:flex-end; gap:4mm; }
+  .vbar svg { height:12mm; display:block; } .vbar div { font-size:9pt; text-align:center; letter-spacing:.5px; }
+  .vqr svg { width:20mm; height:20mm; display:block; }
+  .vcut { border-top:1px dashed #000; margin:6mm 0 2mm; text-align:center; font-size:8pt; line-height:0; }
+  .vcut span { background:#fff; padding:0 2mm; position:relative; top:-.1mm; }
+  .vstitle { text-align:center; font-weight:700; text-decoration:underline; margin-bottom:2mm; }
+  .r80 .vhead { flex-direction:column; gap:1mm; text-align:center; }
+  .r80 .vlogo { width:16mm; height:16mm; } .r80 .vshop { font-size:14pt; }
+  .r80 .vmeta { flex-direction:column; gap:0; } .r80 .vmeta .r { text-align:left; }
+  .r80 .vtable td { height:auto; } .r80 .vcodes { flex-direction:column; align-items:center; }
+  .r80 .vqr svg { width:18mm; height:18mm; }
+  #logoPreview { width:64px; height:64px; object-fit:contain; border:1px solid var(--line); border-radius:8px; background:#fff; }
   .report { color:#000; font-size:14px; max-width:180mm; }
   .report table { width:100%; border-collapse:collapse; }
   .report td { border:1px solid #000; padding:8px; background:none !important; }
@@ -242,7 +267,20 @@
         <label>ဆိုင်အမည်<input name="shopName" required></label>
         <label>ဖုန်းနံပါတ်<input name="phone"></label>
         <label>လိပ်စာ<textarea name="address" rows="2"></textarea></label>
-        <label>ဘောင်ချာ အောက်ခြေမှတ်ချက်<textarea name="note" rows="2"></textarea></label>
+        <label>ဘောင်ချာ မှတ်ချက်<textarea name="note" rows="2"></textarea></label>
+        <label>ဆိုင် Logo (ဘောင်ချာ ဘယ်ဘက်အပေါ်)</label>
+        <div class="toolbar">
+          <img id="logoPreview" alt="">
+          <label class="btn sec sm" style="color:var(--text)">ပုံရွေးရန်<input type="file" id="logoFile" accept="image/*" hidden></label>
+          <button class="btn sec sm" type="button" id="logoClear">ဖယ်ရန်</button>
+        </div>
+        <label>ဘောင်ချာ စက္ကူအရွယ်
+          <select name="paper">
+            <option value="A5">A5 (စာရွက်တစ်ဝက်)</option><option value="A4">A4</option>
+            <option value="80mm">80mm ဘောင်ချာစက် (receipt printer)</option>
+          </select></label>
+        <label class="radio"><input type="checkbox" name="stub"> လက်ခံဘောင်ချာ အောက်မှာ ဆိုင်အတွက် ဖြတ်ပိုင်း (Service Information) ထည့်မည်</label>
+        <div class="toolbar"><button class="btn ghost sm" type="button" id="samplePrint">🖨 နမူနာ ဘောင်ချာ ထုတ်ကြည့်ရန်</button></div>
         <label>Service ဆရာ စာရင်း (တစ်ကြောင်းလျှင် တစ်ယောက်)<textarea name="technicians" rows="3"></textarea></label>
         <label>စာလုံးအရွယ် (ဒီစက်အတွက်)
           <select id="fontSize">
@@ -367,10 +405,12 @@
 const KEY = 'phoneServiceData_v2', KEY_V1 = 'phoneServiceData_v1';
 const $ = s => document.querySelector(s);
 
+const DEFAULT_NOTE = 'တစ်လကျော်သည့် အပ်ထည်များကို တာဝန်မယူပါ။';
+const OLD_NOTE = 'ဖုန်းပြင်ပြီးကြောင်း အကြောင်းကြားပြီး ၁ လအတွင်း လာရောက်ထုတ်ယူပါရန်။';
 function blank() {
   return { version: 2, nextVr: 1001, lastBackup: null, jobs: [], expenses: [], parts: [],
     settings: { shopName: 'ဖုန်းပြင်ဆိုင်', phone: '', address: '',
-      note: 'ဖုန်းပြင်ပြီးကြောင်း အကြောင်းကြားပြီး ၁ လအတွင်း လာရောက်ထုတ်ယူပါရန်။', technicians: [] } };
+      note: DEFAULT_NOTE, technicians: [], paper: 'A5', stub: true, logo: '' } };
 }
 // v1 (ပထမ version) data → v2
 function migrateV1(d) {
@@ -390,7 +430,9 @@ function migrateV1(d) {
 function normalize(d) {
   if (d && d.version === 2 && Array.isArray(d.jobs)) {
     const b = blank();
-    return { ...b, ...d, expenses: d.expenses || [], parts: d.parts || [], settings: { ...b.settings, ...d.settings } };
+    const settings = { ...b.settings, ...d.settings };
+    if (settings.note === OLD_NOTE) settings.note = DEFAULT_NOTE; // မူလ default စာကို ဆိုင်ရဲ့ ဘောင်ချာစာနဲ့ အစားထိုး
+    return { ...b, ...d, expenses: d.expenses || [], parts: d.parts || [], settings };
   }
   if (d && Array.isArray(d.jobs)) return migrateV1(d);
   return null;
@@ -697,28 +739,75 @@ $('#pPrint').onclick = () => {
 };
 
 // ================= Print vouchers =================
-function printJob(id) {
-  const j = byId(db.jobs, id), s = db.settings, done = j.status === 'done';
-  const row = (l, v, cls = '') => v === '' || v == null ? '' : `<tr class="${cls}"><td>${l}</td><td class="r">${esc(v)}</td></tr>`;
-  const t = total(j);
-  doPrint(`<div class="receipt">
-    <h2>${esc(s.shopName)}</h2>
-    ${s.address ? `<div class="c">${esc(s.address)}</div>` : ''}${s.phone ? `<div class="c">☎ ${esc(s.phone)}</div>` : ''}
-    <hr><div class="c"><b>${done ? 'ငွေရှင်း ဘောင်ချာ' : 'ဖုန်းလက်ခံ ဘောင်ချာ'}</b></div><hr>
-    <table>
-      ${row('Vr No.', j.vr)}${row('အပ်သည့်ရက်', fmtD(j.date))}${done ? row('ထုတ်ယူသည့်ရက်', fmtD(j.pickupDate)) : ''}
-      ${row('အမည်', j.customer)}${row('ဖုန်း', j.phone)}${row('အမျိုးအစား', j.model)}${row('IMEI', j.imei)}
-      ${row('အကြောင်းအရာ', j.problem)}${row('Service ဆရာ', j.tech)}
-      ${done ? row('အခြေအနေ', j.result === 'fail' ? 'မအောင်မြင်' : 'အောင်မြင်') : ''}
-    </table><hr>
-    <table>
-      ${done ? `${row('လဲထည့်သည့်ပစ္စည်း', j.partName)}${row('ပစ္စည်းဖိုး', ks(j.partFee))}${row('လက်ခ', ks(j.serviceFee))}
-                ${row('စုစုပေါင်း', ks(t), 'big')}${n(j.deposit) ? row('စရံ', ks(j.deposit)) + row('ပေးရန်ကျန်', ks(t - n(j.deposit)), 'big') : ''}`
-             : `${row('ခန့်မှန်းကုန်ကျငွေ', ks(j.estimate))}${n(j.deposit) ? row('စရံ', ks(j.deposit)) : ''}`}
-    </table><hr>
-    ${s.note ? `<div class="c">${esc(s.note)}</div>` : ''}<div class="c">ကျေးဇူးတင်ပါသည် 🙏</div></div>`);
+// Code 128 (B) barcode → SVG (external library မသုံး)
+const C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 ' +
+  '113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 ' +
+  '232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 ' +
+  '211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 ' +
+  '121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 ' +
+  '114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 ' +
+  '114131 311141 411131 211412 211214 211232 2331112').split(' ');
+function code128Svg(text) {
+  const vals = [...String(text)].map(ch => Math.min(95, Math.max(0, ch.charCodeAt(0) - 32)));
+  const check = (104 + vals.reduce((a, v, i) => a + v * (i + 1), 0)) % 103;
+  const widths = [104, ...vals, check, 106].map(v => C128[v]).join('');
+  let x = 10, bars = '';                         // 10 module quiet zone
+  [...widths].forEach((w, i) => { if (i % 2 === 0) bars += `<rect x="${x}" y="0" width="${w}" height="40"/>`; x += +w; });
+  const W = x + 10;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} 40" preserveAspectRatio="none" shape-rendering="crispEdges"
+    style="width:${(W * 0.33).toFixed(1)}mm">${bars}</svg>`;
 }
-function doPrint(html) { $('#printArea').innerHTML = html; setTimeout(() => window.print(), 50); }
+function qrSvg(text) {
+  try { const q = qrcode(0, 'M'); q.addData(String(text)); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); }
+  catch (e) { return ''; }
+}
+function voucherHTML(j) {
+  const s = db.settings, done = j.status === 'done', paper = s.paper || 'A5';
+  const cls = paper === '80mm' ? 'r80' : paper === 'A4' ? 'a4' : 'a5';
+  const charge = total(j), dep = n(j.deposit);
+  const logo = s.logo || 'icons/voucher-logo.svg';
+  const head = `
+    <div class="vhead"><img class="vlogo" src="${esc(logo)}" alt="">
+      <div><div class="vshop">${esc(s.shopName)}</div>${s.phone ? `<div>${esc(s.phone)}</div>` : ''}</div></div>
+    ${s.address ? `<div class="vaddr">${esc(s.address).replace(/\n/g, '<br>')}</div>` : ''}
+    ${done ? `<div class="vtitle">ငွေရှင်း ဘောင်ချာ</div>` : ''}<hr>
+    <div class="vmeta">
+      <div>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b></div>
+      <div class="r">Date: <b>${fmtD(done ? j.pickupDate : j.date)}</b><br>Vr.No: <b>${esc(j.vr)}</b></div>
+    </div>`;
+  // ဖောက်သည်ကို ပစ္စည်းဖိုး/အမြတ် မပြ — ကျသင့်ငွေ တစ်ခုတည်းပြ
+  const table = done
+    ? `<table class="vtable"><tr><th>ဖုန်းအမျိုးအစား</th><th>ပြင်ခဲ့သည့်အကြောင်းအရာ</th><th class="r">ကျသင့်ငွေ</th></tr>
+        <tr><td>${esc(j.model)}</td><td>${esc(j.partName || j.problem)}${j.result === 'fail' ? '<br>(မအောင်မြင်ပါ)' : ''}</td>
+        <td class="r">${num(charge)} Ks</td></tr></table>
+       ${dep ? `<div class="vsum">စရံ: ${num(dep)} Ks<br><b>ပေးရန်ကျန်: ${num(charge - dep)} Ks</b></div>` : ''}`
+    : `<table class="vtable"><tr><th>ဖုန်းအမျိုးအစား</th><th>အကြောင်းအရာ</th><th class="r">ခန့်မှန်းကုန်ကျငွေ</th></tr>
+        <tr><td>${esc(j.model)}</td><td>${esc(j.problem)}</td><td class="r">${num(j.estimate)} Ks</td></tr></table>
+       ${dep ? `<div class="vsum">စရံ: ${num(dep)} Ks</div>` : ''}`;
+  const codes = `<div class="vcodes"><div class="vbar">${code128Svg(j.vr)}<div>${esc(j.vr)}</div></div>
+    <div class="vqr">${qrSvg(j.vr)}</div></div>`;
+  const stub = !done && s.stub !== false ? `
+    <div class="vcut"><span>✂ ဖြတ်ရန်</span></div>
+    <div class="vstitle">Service Information</div>
+    <div class="vmeta">
+      <div>Vr.No: <b>${esc(j.vr)}</b><br>ဖုန်းအမျိုးအစား: <b>${esc(j.model)}</b><br>အကြောင်းအရာ: <b>${esc(j.problem)}</b>
+        ${j.imei ? `<br>IMEI: <b>${esc(j.imei)}</b>` : ''}${j.tech ? `<br>Service ဆရာ: <b>${esc(j.tech)}</b>` : ''}</div>
+      <div class="r">Date: <b>${fmtD(j.date)}</b><br>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b>
+        <br>ခန့်မှန်း: <b>${num(j.estimate)} Ks</b></div>
+    </div>` : '';
+  return { cls, paper, html: `<div class="vch ${cls}"><div class="main">${head}${table}
+    <div class="vspacer"></div>${done ? `<div class="vnote">ကျေးဇူးတင်ပါသည်။</div>` : s.note ? `<div class="vnote">${esc(s.note)}</div>` : ''}${codes}</div>${stub}</div>` };
+}
+function printJob(id) { const v = voucherHTML(byId(db.jobs, id)); doPrint(v.html, v.paper); }
+const PAGE = { A5: '@page { size: A5 portrait; margin: 8mm; }', A4: '@page { size: A4 portrait; margin: 12mm; }',
+               '80mm': '@page { size: 80mm auto; margin: 3mm; }', report: '@page { size: A4 portrait; margin: 12mm; }' };
+async function doPrint(html, paper = 'report') {
+  const area = $('#printArea');
+  area.innerHTML = `<style>${PAGE[paper] || PAGE.report}</style>` + html;
+  // logo ပုံ load ပြီးမှ print (မဟုတ်ရင် ပုံမပါဘဲ ထွက်တတ်)
+  await Promise.all([...area.querySelectorAll('img')].map(img => img.decode ? img.decode().catch(() => {}) : null));
+  setTimeout(() => window.print(), 50);
+}
 
 // ================= Settings / Backup =================
 // စာလုံးအရွယ်က စက်တစ်လုံးချင်း (ဖုန်း/laptop မတူနိုင်လို့) — db ထဲမထည့်ဘဲ localStorage သီးသန့်
@@ -734,14 +823,38 @@ $('#fontSize').onchange = e => {
 };
 function fillSettings() {
   const s = db.settings, f = $('#setForm');
-  fillForm(f, { ...s, technicians: s.technicians.join('\n') });
+  fillForm(f, { ...s, technicians: s.technicians.join('\n'), stub: undefined });
+  f.elements.stub.checked = s.stub !== false;
+  $('#logoPreview').src = s.logo || 'icons/voucher-logo.svg';
   $('#setSaved').textContent = '';
   $('#lastBackup').textContent = 'နောက်ဆုံး Backup: ' + (db.lastBackup ? new Date(db.lastBackup).toLocaleString() : 'မလုပ်ရသေးပါ');
 }
 $('#setForm').onsubmit = e => {
   e.preventDefault(); const d = formData(e.target);
-  db.settings = { ...db.settings, ...d, technicians: d.technicians.split('\n').map(x => x.trim()).filter(Boolean) };
+  db.settings = { ...db.settings, ...d, stub: e.target.elements.stub.checked,
+    technicians: d.technicians.split('\n').map(x => x.trim()).filter(Boolean) };
   save(); $('#setSaved').textContent = ' ✓ သိမ်းပြီးပါပြီ';
+};
+// Logo: 240px အထိ ချုံ့ပြီး data URL နဲ့ သိမ်း (backup ထဲပါ)
+$('#logoFile').onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, 240 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    db.settings.logo = c.toDataURL('image/png'); URL.revokeObjectURL(img.src);
+    save(); $('#logoPreview').src = db.settings.logo; e.target.value = '';
+  };
+  img.onerror = () => alert('ပုံဖိုင် ဖွင့်လို့မရပါ');
+  img.src = URL.createObjectURL(file);
+};
+$('#logoClear').onclick = () => { db.settings.logo = ''; save(); $('#logoPreview').src = 'icons/voucher-logo.svg'; };
+$('#samplePrint').onclick = () => {
+  $('#setForm').requestSubmit(); // ပြောင်းထားတဲ့ ဆက်တင် (စက္ကူအရွယ် စသည်) ကို အရင်သိမ်း
+  const v = voucherHTML({ vr: db.nextVr, date: today(), customer: 'နမူနာ ဖောက်သည်', phone: '09xxxxxxxxx', model: 'redmi 13c',
+    imei: '123456789012345', problem: 'bootloop', tech: db.settings.technicians[0] || '', estimate: 55000, deposit: 0, status: 'open' });
+  doPrint(v.html, v.paper);
 };
 function download(name, text, type) {
   const a = document.createElement('a');

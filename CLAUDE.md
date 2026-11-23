@@ -87,7 +87,16 @@
   (မြန်မာစာသာ) ကန့်ထားတယ် — သူ့ ဂဏန်း "2" က "Z" နဲ့ ဆင်လို့ ဂဏန်း/English က Padauk နဲ့ပြတယ်။
   ဆိုင်ရှင်ပေးတဲ့ တခြား font (Burma-009/019, BM-King002, Z09-LatYaySat, PT16_Burmese) တွေ repo ထဲ မထည့်ထား
   (BM-King002 က စာလုံးကွဲတယ်)။ Font အသစ်က **Unicode** ဖြစ်ရမယ် (Zawgyi မရ)။
-- **Print**: `#printArea` + `@media print`။ ဘောင်ချာ အကျယ် ~72mm (80mm receipt printer)။
+- **ဘောင်ချာ** (ဆိုင်ရှင်ပေးတဲ့ ဘောင်ချာ အစစ် နမူနာအတိုင်း — `voucherHTML()`):
+  - အပေါ်ပိုင်း (ဖောက်သည်အတွက်): Logo + ဆိုင်အမည် + ဖုန်း → လိပ်စာ (အလယ်) → Customer/Contact | Date/Vr.No →
+    ဇယား (ဖုန်းအမျိုးအစား | အကြောင်းအရာ | ခန့်မှန်းကုန်ကျငွေ) → မှတ်ချက် → **Barcode (Code128) + QR** (Vr No.)
+  - အောက်ပိုင်း ✂ **Service Information** ဖြတ်ပိုင်း (ဆိုင်က ဖုန်းနဲ့တွဲထားဖို့): Vr.No၊ အမျိုးအစား၊ အကြောင်းအရာ၊ IMEI၊ ဆရာ | Date၊ Customer၊ Contact၊ ခန့်မှန်း
+  - ငွေရှင်း ဘောင်ချာ (ထုတ်ယူပြီး): ကျသင့်ငွေ၊ စရံ၊ ပေးရန်ကျန် **သာ** — ပစ္စည်းဖိုး/အမြတ် ဖောက်သည်ကို ဘယ်တော့မှ မပြရ
+  - ဆက်တင်: Logo upload (240px ချုံ့၊ data URL)၊ စက္ကူ A5 (default) / A4 / 80mm၊ ဖြတ်ပိုင်း ပါ/မပါ၊ နမူနာ print
+  - Default logo `icons/voucher-logo.svg` (အဖြူအမည်း line-art — အပြာ icon က B&W printer မှာ မည်းထွက်လို့)
+  - Barcode: `code128Svg()` ကိုယ်တိုင်ရေး (Code 128-B)။ QR: `vendor/qrcode.js` (qrcode-generator 2.0.4, MIT)။
+    zxing-cpp နဲ့ decode စစ်ပြီး။ Barcode scanner နဲ့ ဖတ်ရင် Search (Vr No.) ထဲ ရိုက်ထည့်ပေးလို့ ရှာလို့ရ။
+- **Print**: `#printArea` + `@media print`၊ `@page size` ကို စက္ကူအလိုက် `doPrint()` က ထည့်တယ်။ ပုံ load ပြီးမှ print။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။
 - **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ GitHub Pages (စမ်းရန်) / Cloudflare Pages။
@@ -115,14 +124,14 @@
   ဆိုင်ရှင်က စက်များကြား မျှသုံးချင်တယ် → cloud sync လိုအပ်ပြီ (Roadmap ကြည့်)။
 
 ## မေးရန် ကျန်သေးတာ (ဆိုင်ရှင်ထံ)
-- ဘောင်ချာ ပုံစံ အစစ် (ဆိုင်အမည်၊ စည်းကမ်းချက်) နဲ့ printer အမျိုးအစား (58/80mm / A4)
+- ဆိုင်ရဲ့ printer/စက္ကူ အရွယ် အတိအကျ (လောလောဆယ် A5 လို့ ယူဆထား — ဆက်တင်မှာ ပြောင်းလို့ရ)
 - လက်ရှိ program ရဲ့ data အဟောင်းကို Excel ကနေ import လုပ်ဖို့ လိုမလို
 
 ## နောင်လုပ်မယ့် အစီအစဉ် (Roadmap)
 - [x] PWA — icon၊ install၊ offline
 - [x] လက်ရှိ program ရဲ့ screen ၆ ခု ပုံစံ (v2)
 - [x] ဘောင်ချာ print (လက်ခံ / ထုတ်ယူ)
-- [ ] ဘောင်ချာ ပုံစံကို ဆိုင်ရဲ့ အစစ်အတိုင်း ညှိ
+- [x] ဘောင်ချာ ပုံစံကို ဆိုင်ရဲ့ အစစ်အတိုင်း ညှိ (barcode + QR + ဖြတ်ပိုင်း)
 - [ ] လက်ရှိ program ရဲ့ Excel data import
 - [ ] လဲထည့်တဲ့ပစ္စည်းကို stock ထဲက အလိုအလျောက် နုတ်ခြင်း
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
