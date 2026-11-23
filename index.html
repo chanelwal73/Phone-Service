@@ -583,7 +583,6 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn ghost" type="submit" value="print"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg> ထုတ်ပေးပြီး Print</button>
       <button class="btn green" type="submit" value="save"><svg class="i" aria-hidden="true"><use href="#i-hand-coins"/></svg> ထုတ်ပေးမည်</button>
     </div>
   </form>
@@ -784,7 +783,7 @@ const VIEWS = {
     statusFilter: { all: ['အားလုံး', () => true], wait: ['📦 ထုတ်ရန်ကျန် (ဆိုင်မှာရှိ)', r => r.status === 'repaired'],
                     out: ['✅ ထုတ်ပြီး', r => r.status === 'done'] },
     cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.repairDesc, C.partFee, C.serviceFee, C.total, C.hasDmg, C.tech, C.date, C.pickState, C.result],
-    acts: r => ib('printer', 'ဘောင်ချာ Print', `printJob('${r.id}')`) +
+    acts: r =>
                (r.status === 'repaired' ? ib('hand-coins', 'ဖုန်းပြန်ထုတ်ပေးရန်', `openPick('${r.id}')`) : '') +
                ib('coins', 'ပစ္စည်းဖိုး/လက်ခ ပြင်ရန်', `openDone('${r.id}')`) + ib('ellipsis-vertical', 'အခြား', `openMore('${r.id}')`) +
                ib('pencil', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('trash-2', 'ဖျက်ရန်', `delJob('${r.id}')`),
@@ -797,7 +796,7 @@ const VIEWS = {
     title: 'ဝင်ငွေစာရင်း', dateKey: 'pickupDate',
     rows: doneJobs,
     cols: [C.vr, C.customer, C.model, C.problem, C.date, C.pickup, C.partName, C.partFee, C.serviceFee, C.total],
-    acts: r => ib('printer', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('coins', 'ငွေ ပြင်ရန်', `openDone('${r.id}')`),
+    acts: r => ib('coins', 'ငွေ ပြင်ရန်', `openDone('${r.id}')`),
     stats: rows => [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['red', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
                     ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))]],
   },
@@ -1067,32 +1066,26 @@ function qrSvg(text) {
   try { const q = qrcode(0, 'M'); q.addData(String(text)); q.make(); return q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); }
   catch (e) { return ''; }
 }
+// ဘောင်ချာ တစ်မျိုးတည်း — ဖုန်းလက်ခံတဲ့အခါ ထုတ်ပေးတဲ့ ဘောင်ချာ (ဆိုင်ရှင် တောင်းဆိုချက်၊ ငွေရှင်းဘောင်ချာ မရှိ)
 function voucherHTML(j) {
-  const s = db.settings, done = j.status !== 'open', paper = s.paper || 'A5';
+  const s = db.settings, paper = s.paper || 'A5';
   const cls = paper === '80mm' ? 'r80' : paper === 'A4' ? 'a4' : 'a5';
-  const charge = total(j), dep = n(j.deposit);
+  const dep = n(j.deposit);
   const logo = s.logo || 'icons/voucher-logo.svg';
   const head = `
     <div class="vhead"><img class="vlogo" src="${esc(logo)}" alt="">
       <div><div class="vshop">${esc(s.shopName)}</div>${s.phone ? `<div>${esc(s.phone)}</div>` : ''}</div></div>
-    ${s.address ? `<div class="vaddr">${esc(s.address).replace(/\n/g, '<br>')}</div>` : ''}
-    ${done ? `<div class="vtitle">ငွေရှင်း ဘောင်ချာ</div>` : ''}<hr>
+    ${s.address ? `<div class="vaddr">${esc(s.address).replace(/\n/g, '<br>')}</div>` : ''}<hr>
     <div class="vmeta">
       <div>Customer: <b>${esc(j.customer)}</b><br>Contact: <b>${esc(j.phone)}</b></div>
-      <div class="r">Date: <b>${fmtD(done ? (j.pickupDate || today()) : j.date)}</b><br>Vr.No: <b>${esc(j.vr)}</b></div>
+      <div class="r">Date: <b>${fmtD(j.date)}</b><br>Vr.No: <b>${esc(j.vr)}</b></div>
     </div>`;
-  // ဖောက်သည်ကို ပစ္စည်းဖိုး/အမြတ် မပြ — ကျသင့်ငွေ တစ်ခုတည်းပြ
-  const table = done
-    ? `<table class="vtable"><tr><th>ဖုန်းအမျိုးအစား</th><th>ပြင်ခဲ့သည့်အကြောင်းအရာ</th><th class="r">ကျသင့်ငွေ</th></tr>
-        <tr><td>${esc(j.model)}</td><td>${esc(j.partName || j.problem)}${j.result === 'fail' ? '<br>(မအောင်မြင်ပါ)' : ''}</td>
-        <td class="r">${num(charge)} Ks</td></tr></table>
-       ${dep ? `<div class="vsum">စရံ: ${num(dep)} Ks<br><b>ပေးရန်ကျန်: ${num(charge - dep)} Ks</b></div>` : ''}`
-    : `<table class="vtable"><tr><th>ဖုန်းအမျိုးအစား</th><th>အကြောင်းအရာ</th><th class="r">ခန့်မှန်းကုန်ကျငွေ</th></tr>
+  const table = `<table class="vtable"><tr><th>ဖုန်းအမျိုးအစား</th><th>အကြောင်းအရာ</th><th class="r">ခန့်မှန်းကုန်ကျငွေ</th></tr>
         <tr><td>${esc(j.model)}</td><td>${esc(j.problem)}</td><td class="r">${num(j.estimate)} Ks</td></tr></table>
        ${dep ? `<div class="vsum">စရံ: ${num(dep)} Ks</div>` : ''}`;
   const codes = `<div class="vcodes"><div class="vbar">${code128Svg(j.vr)}<div>${esc(j.vr)}</div></div>
     <div class="vqr">${qrSvg(j.vr)}</div></div>`;
-  const stub = !done && s.stub !== false ? `
+  const stub = s.stub !== false ? `
     <div class="vcut"><span>✂ ဖြတ်ရန်</span></div>
     <div class="vstitle">Service Information</div>
     <div class="vmeta">
@@ -1102,7 +1095,7 @@ function voucherHTML(j) {
         <br>ခန့်မှန်း: <b>${num(j.estimate)} Ks</b></div>
     </div>` : '';
   return { cls, paper, html: `<div class="vch ${cls}"><div class="main">${head}${table}
-    <div class="vspacer"></div>${s.note ? `<div class="vnote">${esc(s.note)}</div>` : ''}${done ? `<div class="vnote" style="margin-top:0">ကျေးဇူးတင်ပါသည်။</div>` : ''}${codes}</div>${stub}</div>` };
+    <div class="vspacer"></div>${s.note ? `<div class="vnote">${esc(s.note)}</div>` : ''}${codes}</div>${stub}</div>` };
 }
 function printJob(id) { const v = voucherHTML(byId(db.jobs, id)); doPrint(v.html, v.paper); }
 const PAGE = { A5: '@page { size: A5 portrait; margin: 8mm; }', A4: '@page { size: A4 portrait; margin: 12mm; }',
