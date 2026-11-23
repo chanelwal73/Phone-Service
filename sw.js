@@ -1,5 +1,5 @@
 // Offline cache. ဖိုင်တစ်ခုခု ပြင်တိုင်း VERSION ကို တိုးပါ (ဒါမှ ဖုန်းတွေမှာ update ရမယ်)
-const VERSION = 'v18';
+const VERSION = 'v19';
 const CACHE = 'phone-service-' + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png',

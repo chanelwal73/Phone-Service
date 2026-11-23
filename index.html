@@ -1102,7 +1102,7 @@ function voucherHTML(j) {
         <br>ခန့်မှန်း: <b>${num(j.estimate)} Ks</b></div>
     </div>` : '';
   return { cls, paper, html: `<div class="vch ${cls}"><div class="main">${head}${table}
-    <div class="vspacer"></div>${done ? `<div class="vnote">ကျေးဇူးတင်ပါသည်။</div>` : s.note ? `<div class="vnote">${esc(s.note)}</div>` : ''}${codes}</div>${stub}</div>` };
+    <div class="vspacer"></div>${s.note ? `<div class="vnote">${esc(s.note)}</div>` : ''}${done ? `<div class="vnote" style="margin-top:0">ကျေးဇူးတင်ပါသည်။</div>` : ''}${codes}</div>${stub}</div>` };
 }
 function printJob(id) { const v = voucherHTML(byId(db.jobs, id)); doPrint(v.html, v.paper); }
 const PAGE = { A5: '@page { size: A5 portrait; margin: 8mm; }', A4: '@page { size: A4 portrait; margin: 12mm; }',
