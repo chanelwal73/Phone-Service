@@ -99,7 +99,8 @@
 - **Print**: `#printArea` + `@media print`၊ `@page size` ကို စက္ကူအလိုက် `doPrint()` က ထည့်တယ်။ ပုံ load ပြီးမှ print။
 - **PWA (installable app)**: `manifest.webmanifest`၊ `sw.js` (network-first + offline cache)၊ `icons/`၊
   `navigator.storage.persist()`။
-- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ GitHub Pages (စမ်းရန်) / Cloudflare Pages။
+- **Hosting**: PWA install/offline က HTTPS ပေါ်မှာမှ ရတယ်။ **Cloudflare Pages** (sync ပါ — အဓိက) / GitHub Pages (sync မပါ)။
+  ⚠️ link မတူရင် localStorage မတူ — GitHub Pages ကထည့်ထားတဲ့ data ကို Backup → Restore နဲ့ ရွှေ့ရ။
 
 ## Code စည်းမျဉ်း
 - Data schema ပြောင်းရင် key version (`_v2` → `_v3`) တိုးပြီး migration function ထည့်ပါ။
@@ -119,9 +120,30 @@
   - Windows (Chrome/Edge): ခလုတ် (သို့) address bar ထဲက install icon
 - iPhone မှာ install လုပ်ထားတဲ့ app ရဲ့ data က Safari ထဲက data နဲ့ သီးခြားဖြစ်တယ်။
 
-## သိထားရမယ့် ကန့်သတ်ချက်
-- Data က **စက်တစ်လုံးချင်း** (browser localStorage) မှာပဲ ရှိတယ် — ဖုန်းမှာထည့်တာ laptop မှာ မပေါ်။
-  ဆိုင်ရှင်က စက်များကြား မျှသုံးချင်တယ် → cloud sync လိုအပ်ပြီ (Roadmap ကြည့်)။
+## စက်များကြား Sync (Cloudflare Pages Functions + D1)
+ဆိုင်ရှင် တောင်းဆိုချက် — ဖုန်းမှာထည့်တာ laptop မှာပါ ပေါ်ရမယ်။ **Offline-first**: စက်တိုင်း localStorage မှာ ဆက်သိမ်း၊
+လိုင်းရရင် server နဲ့ ပို့/ယူ။
+
+- **Server**: `functions/api/[[path]].js` (Cloudflare Pages Function)
+  - `GET /api/ping` (password စစ်)၊ `POST /api/sync` (push + pull)၊ `POST /api/vr` (Vr No. ခွဲပေး)
+  - Auth: header `x-shop-key` == secret `SHOP_PASSWORD` (constant-time compare)
+  - D1 binding `DB` — table `records(kind, id, data, updated_at, deleted, rev)`၊ `meta(k, v)` (ပထမ request မှာ အလိုအလျောက်ဆောက်)
+  - **Last-write-wins**: `updated_at` ပိုနောက်ကျမှ အစားထိုး။ `rev` (server က အစဉ်လိုက်) နဲ့ "since" pull
+  - Request တစ်ခု ≤40 changes၊ pull ≤1000 rows (`more` flag) — D1 free-tier query limit အောက်မှာနေအောင်
+- **Client** (`index.html` "Cloud Sync" အပိုင်း, localStorage key `phoneServiceSync_v1`):
+  - ပြောင်းသွားတာကို **hash နဲ့ ရှာ** (`trackChanges()` — `save()` တိုင်း) → mutation code တွေ ပြင်စရာမလို
+    (record တိုင်းရဲ့ FNV hash ကို မှတ်၊ မတူရင် `updatedAt` သတ်မှတ်ပြီး `pending`၊ ပျောက်သွားရင် delete tombstone)
+  - Sync ချိန်: save ပြီး 0.8s၊ app ဖွင့်တာ၊ online ပြန်ဖြစ်တာ၊ tab ပြန်မြင်တာ၊ ၃၀ စက္ကန့်တိုင်း
+  - Sync ဖြစ်တဲ့ record: jobs / expenses / parts / settings (logo ပါ)။ **မဖြစ်တာ**: စာလုံးအရွယ် (စက်အလိုက်)၊ `nextVr`၊ `lastBackup`
+  - **Vr No.**: online → server `meta.vr` counter (စက်တွေကြား မထပ်)၊ offline → `nextVr` + စက်အက္ခရာ (ဥပမာ `1004S`)
+  - ချိတ်တဲ့အခါ ဒီစက်မှာ data ရှိရင် "Cloud ထဲ ထည့်ပေါင်း / ဖျက်ပြီး Cloud ကပဲယူ" မေးတယ်
+  - Topbar pill က Sync အခြေအနေ ပြ (နှိပ်ရင် ဆက်တင်)
+  - GitHub Pages ပေါ်မှာ `/api` မရှိ → "ဒီ link မှာ Sync မရ" (app ကတော့ ပုံမှန်အလုပ်လုပ်)
+  - `sw.js` က `/api/` ကို cache မလုပ်
+- **Local စမ်းနည်း**: `npx wrangler pages dev . --d1 DB=shopdb --binding SHOP_PASSWORD=test --persist-to <tmp>`
+  (repo root ကနေ run မှ `functions/` ကိုတွေ့)။ စက် ၂ လုံး e2e (merge, Vr, offline, delete, conflict) စမ်းပြီး။
+- **Cloudflare setup** (ဆိုင်ရှင် dashboard မှာ): Pages project ← GitHub `main`၊ build command မရှိ၊ output `/`၊
+  Bindings → D1 `DB`၊ Variables and Secrets → Secret `SHOP_PASSWORD`၊ ပြီးရင် redeploy။
 
 ## မေးရန် ကျန်သေးတာ (ဆိုင်ရှင်ထံ)
 - လက်ရှိ program ရဲ့ data အဟောင်းကို Excel ကနေ import လုပ်ဖို့ လိုမလို
@@ -135,4 +157,5 @@
 - [ ] လဲထည့်တဲ့ပစ္စည်းကို stock ထဲက အလိုအလျောက် နုတ်ခြင်း
 - [ ] အာမခံ (warranty) ရက် ခြေရာခံခြင်း
 - [x] GitHub Pages ပေါ် deploy (`https://chanelwal73.github.io/Phone-Service/`, `main` branch)
-- [ ] **စက်များကြား data sync (ဖုန်း ↔ laptop) — ဆိုင်ရှင် လိုအပ်ကြောင်း ပြောပြီ** (Cloudflare Worker + D1, offline-first)
+- [x] စက်များကြား data sync (ဖုန်း ↔ laptop) — Cloudflare Pages Functions + D1, offline-first (code ပြီး)
+- [ ] Cloudflare Pages ပေါ် deploy + D1/Secret setup (ဆိုင်ရှင် dashboard မှာ)
