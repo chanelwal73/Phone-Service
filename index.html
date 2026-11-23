@@ -160,6 +160,139 @@
   /* Settings */
   .settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; max-width:1000px; }
 
+  /* ================= Design v2 — icons, buttons, cards ================= */
+  :root { --bg:#f1f4fa; --line:#e4e8f0; --nav:#1e293b; --accent:#4f46e5; --muted:#64748b;
+          --sh-sm:0 1px 2px rgba(15,23,42,.06), 0 2px 8px rgba(15,23,42,.05);
+          --sh-md:0 4px 10px rgba(15,23,42,.07), 0 12px 28px rgba(15,23,42,.08);
+          --grad:linear-gradient(135deg,#6366f1,#3b82f6); --grad-green:linear-gradient(135deg,#10b981,#16a34a); }
+  body { background:radial-gradient(1200px 500px at 50% -200px,#e0e7ff 0%,transparent 70%),var(--bg); background-attachment:fixed; }
+  .i { width:1.25em; height:1.25em; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+       flex:none; vertical-align:-.25em; }
+  .spin { animation:spin 1s linear infinite; } @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Top bar */
+  .topbar { background:linear-gradient(120deg,#0f172a 0%,#1e3a8a 55%,#4338ca 100%); box-shadow:0 4px 16px rgba(15,23,42,.25); padding:10px 16px; }
+  .back { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12); display:grid; place-items:center; padding:0; }
+  .back:hover { background:rgba(255,255,255,.22); } .back .i { width:22px; height:22px; }
+  .pill { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; font-size:.82rem; background:rgba(255,255,255,.14);
+          border:1px solid rgba(255,255,255,.18); }
+  .pill .i { width:16px; height:16px; }
+  .pill.off { background:#fbbf24; border-color:#f59e0b; }
+  #installBtn { background:#fff; color:#3730a3; box-shadow:none; }
+  #updateBar { background:linear-gradient(90deg,#059669,#16a34a); font-weight:600; }
+  #updateBar b { display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+
+  /* Buttons */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:12px; font-weight:600;
+         background:var(--grad); box-shadow:0 4px 12px rgba(79,70,229,.28); transition:transform .12s, box-shadow .12s, filter .12s; }
+  .btn:hover { filter:brightness(1.06); box-shadow:0 6px 16px rgba(79,70,229,.34); }
+  .btn:active { transform:scale(.97); }
+  .btn.green { background:var(--grad-green); box-shadow:0 4px 12px rgba(22,163,74,.28); }
+  .btn.sec { background:#eef2f7; color:#334155; box-shadow:none; }
+  .btn.sec:hover { background:#e2e8f0; }
+  .btn.ghost { background:#fff; color:#334155; border:1px solid var(--line); box-shadow:var(--sh-sm); }
+  .btn.ghost .i { color:#16a34a; }
+  .btn.sm { border-radius:10px; }
+  .btn:disabled { opacity:.6; cursor:wait; }
+  select, input, textarea { border-radius:10px; border-color:#d7dde7; transition:border-color .12s, box-shadow .12s; }
+  select:focus, input:focus, textarea:focus { outline:none; border-color:#818cf8; box-shadow:0 0 0 3px rgba(99,102,241,.18); }
+  .search { position:relative; display:inline-flex; align-items:center; }
+  .search .i { position:absolute; left:12px; color:#94a3b8; pointer-events:none; }
+  .search input { padding-left:40px; min-width:200px; }
+
+  /* Home */
+  .home-wrap { max-width:880px; }
+  .brand { background:linear-gradient(120deg,#1e3a8a,#4f46e5 60%,#7c3aed); color:#fff; border-radius:22px; padding:20px 22px;
+           box-shadow:var(--sh-md); position:relative; overflow:hidden; }
+  .brand::after { content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%;
+                  background:rgba(255,255,255,.08); }
+  .brand img { width:60px; height:60px; border-radius:16px; background:#fff; padding:6px; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+  .brand h2 { font-size:1.45rem; } .brand .count { color:rgba(255,255,255,.75); }
+  .tiles { grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+  .tile { border-radius:18px; padding:18px; gap:16px; border:1px solid var(--line); box-shadow:var(--sh-sm);
+          transition:transform .15s, box-shadow .15s, border-color .15s; }
+  .tile:hover { transform:translateY(-3px); box-shadow:var(--sh-md); border-color:#c7d2fe; }
+  .tile:active { transform:translateY(-1px) scale(.99); }
+  .tile .ic { width:56px; height:56px; border-radius:16px; color:#fff; box-shadow:0 6px 14px var(--glow,rgba(79,70,229,.3)); }
+  .tile .ic .i { width:28px; height:28px; stroke-width:1.9; }
+  .tile b { display:block; font-weight:400; font-size:1.05rem; line-height:1.4; }
+  .tile small { display:block; font-family:var(--font); color:var(--muted); font-size:.82rem; margin-top:2px; }
+  .tile.minor { padding:14px 18px; } .tile.minor .ic { width:46px; height:46px; border-radius:14px; }
+  .tile.minor .ic .i { width:23px; height:23px; }
+  .tile.c-blue   .ic { background:linear-gradient(135deg,#60a5fa,#2563eb); --glow:rgba(37,99,235,.32); }
+  .tile.c-green  .ic { background:linear-gradient(135deg,#34d399,#059669); --glow:rgba(5,150,105,.32); }
+  .tile.c-teal   .ic { background:linear-gradient(135deg,#2dd4bf,#0d9488); --glow:rgba(13,148,136,.32); }
+  .tile.c-orange .ic { background:linear-gradient(135deg,#fdba74,#ea580c); --glow:rgba(234,88,12,.3); }
+  .tile.c-rose   .ic { background:linear-gradient(135deg,#fb7185,#e11d48); --glow:rgba(225,29,72,.3); }
+  .tile.c-violet .ic { background:linear-gradient(135deg,#a78bfa,#7c3aed); --glow:rgba(124,58,237,.32); }
+  .tile.c-amber  .ic { background:linear-gradient(135deg,#fcd34d,#d97706); --glow:rgba(217,119,6,.3); }
+  .tile.c-slate  .ic { background:linear-gradient(135deg,#94a3b8,#475569); --glow:rgba(71,85,105,.3); }
+  .today > div { display:flex; align-items:center; gap:10px; border-radius:14px; padding:12px 14px; box-shadow:var(--sh-sm); }
+  .today .ti { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:#eef2ff; color:#4f46e5; flex:none; }
+  .today .ti .i { width:20px; height:20px; }
+  .notice { border-radius:14px; }
+
+  /* Stat cards */
+  .stat { position:relative; overflow:hidden; border-radius:16px; padding:14px 16px; box-shadow:var(--sh-md);
+          display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .stat::after { content:""; position:absolute; right:-30px; bottom:-40px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.1); }
+  .stat .si { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:rgba(255,255,255,.2); flex:none; z-index:1; }
+  .stat .si .i { width:24px; height:24px; }
+  .stat.green  { background:linear-gradient(135deg,#059669,#22c55e); }
+  .stat.purple { background:linear-gradient(135deg,#6d28d9,#a855f7); }
+  .stat.blue   { background:linear-gradient(135deg,#1d4ed8,#38bdf8); }
+  .stat.red    { background:linear-gradient(135deg,#be123c,#fb7185); }
+  .stat.gray   { background:linear-gradient(135deg,#334155,#64748b); }
+
+  /* Table */
+  .tbl { border-radius:16px; box-shadow:var(--sh-sm); border-color:var(--line); }
+  th { background:#1e293b; padding:12px; font-size:.92rem; letter-spacing:.2px; }
+  td { border-bottom-color:#eef1f6; }
+  tbody tr:hover td, #listTable tbody tr:hover td.acts { background:#f5f7ff; }
+  .acts { display:flex; gap:6px; align-items:center; }
+  #listTable td.acts { display:table-cell; }
+  .ib { width:38px; height:38px; padding:0; border-radius:11px; display:inline-grid; place-items:center; margin:0 2px;
+        transition:transform .12s, background .12s, color .12s; }
+  .ib .i { width:19px; height:19px; }
+  .ib:hover { transform:translateY(-1px); color:#fff; }
+  .ib.c-blue   { background:#eff6ff; color:#2563eb; }  .ib.c-blue:hover   { background:#2563eb; }
+  .ib.c-green  { background:#ecfdf5; color:#059669; }  .ib.c-green:hover  { background:#059669; }
+  .ib.c-teal   { background:#f0fdfa; color:#0d9488; }  .ib.c-teal:hover   { background:#0d9488; }
+  .ib.c-amber  { background:#fffbeb; color:#d97706; }  .ib.c-amber:hover  { background:#d97706; }
+  .ib.c-indigo { background:#eef2ff; color:#4f46e5; }  .ib.c-indigo:hover { background:#4f46e5; }
+  .ib.c-red    { background:#fff1f2; color:#e11d48; }  .ib.c-red:hover    { background:#e11d48; }
+  .ib.c-slate  { background:#f1f5f9; color:#475569; }  .ib.c-slate:hover  { background:#475569; }
+  .tag { padding:2px 12px; font-weight:600; }
+
+  /* Dialogs & cards */
+  dialog { border-radius:22px; box-shadow:0 24px 60px rgba(15,23,42,.35); }
+  dialog::backdrop { background:rgba(15,23,42,.5); backdrop-filter:blur(3px); }
+  dialog h3 { display:flex; align-items:center; gap:10px; }
+  .hi { width:40px; height:40px; border-radius:12px; display:inline-grid; place-items:center; color:#fff; background:var(--grad);
+        box-shadow:0 4px 12px rgba(79,70,229,.3); flex:none; }
+  .hi .i { width:22px; height:22px; }
+  .hi.g { background:var(--grad-green); box-shadow:0 4px 12px rgba(22,163,74,.3); }
+  .hi.t { background:linear-gradient(135deg,#2dd4bf,#0d9488); } .hi.s { background:linear-gradient(135deg,#94a3b8,#475569); }
+  .info { border-radius:14px; background:#f5f7fb; border:1px solid #e9edf4; }
+  .profitbox { border-radius:14px; }
+  details { border-radius:14px; } summary { display:flex; align-items:center; gap:8px; } summary .i { color:#e11d48; }
+  .card { border-radius:18px; box-shadow:var(--sh-sm); }
+  .card h3 { display:flex; align-items:center; gap:10px; }
+  #moreDlg .btn { justify-content:flex-start; min-height:52px; }
+  #moreUnpick { background:linear-gradient(135deg,#8b5cf6,#6d28d9) !important; }
+  #moreReopen { background:linear-gradient(135deg,#fcd34d,#f59e0b) !important; color:#1e293b !important; box-shadow:0 4px 12px rgba(245,158,11,.3); }
+  @media (max-width:600px) {
+    .tiles { grid-template-columns:1fr 1fr; gap:10px; }
+    .tile { flex-direction:column; align-items:flex-start; gap:8px; padding:12px; border-radius:16px; }
+    .tile .ic, .tile.minor .ic { width:42px; height:42px; border-radius:13px; }
+    .tile .ic .i, .tile.minor .ic .i { width:22px; height:22px; }
+    .tile b { font-size:.95rem; }
+    .brand { padding:16px; border-radius:18px; } .brand img { width:48px; height:48px; }
+    .today { grid-template-columns:1fr 1fr; }
+    .tile small { display:none; }
+    .search input { min-width:0; width:100%; } .search { flex:1 1 100%; }
+  }
+
   /* Print */
   #printArea { display:none; }
   @media print {
@@ -206,12 +339,53 @@
 </style>
 </head>
 <body>
+<!-- Icons: Lucide (lucide-static 1.70.0, ISC License © Lucide Contributors) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /> <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol>
+<symbol id="i-circle-check-big" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335" /> <path d="m9 11 3 3L22 4" /></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M12 17V7" /> <path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8" /> <path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z" /></symbol>
+<symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol>
+<symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="m19 9-5 5-4-4-3 3" /></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /> <path d="M12 22V12" /> <polyline points="3.29 7 12 12 20.71 7" /> <path d="m7.5 4.27 9 5.15" /></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /> <circle cx="12" cy="12" r="3" /></symbol>
+<symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /> <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /> <rect x="6" y="14" width="12" height="8" rx="1" /></symbol>
+<symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" /></symbol>
+<symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" /> <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" /> <path d="m2 16 6 6" /> <circle cx="16" cy="9" r="2.9" /> <circle cx="6" cy="5" r="3" /></symbol>
+<symbol id="i-coins" viewBox="0 0 24 24"><path d="M13.744 17.736a6 6 0 1 1-7.48-7.48" /> <path d="M15 6h1v4" /> <path d="m6.134 14.768.866-.5 2 3.464" /> <circle cx="16" cy="8" r="6" /></symbol>
+<symbol id="i-ellipsis-vertical" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /> <circle cx="12" cy="5" r="1" /> <circle cx="12" cy="19" r="1" /></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /> <path d="m15 5 4 4" /></symbol>
+<symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M10 11v6" /> <path d="M14 11v6" /> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /> <path d="M3 6h18" /> <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+<symbol id="i-file-spreadsheet" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M8 13h2" /> <path d="M14 13h2" /> <path d="M8 17h2" /> <path d="M14 17h2" /></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" /></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></symbol>
+<symbol id="i-cloud-check" viewBox="0 0 24 24"><path d="m17 15-5.5 5.5L9 18" /> <path d="M5.516 16.07A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 3.501 7.327" /></symbol>
+<symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057" /> <path d="M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78" /> <path d="m2 2 20 20" /></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12" /> <path d="m17 8-5-5-5 5" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></symbol>
+<symbol id="i-image-plus" viewBox="0 0 24 24"><path d="M16 5h6" /> <path d="M19 2v6" /> <path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5" /> <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /> <circle cx="9" cy="9" r="2" /></symbol>
+<symbol id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></symbol>
+<symbol id="i-piggy-bank" viewBox="0 0 24 24"><path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z" /> <path d="M16 10h.01" /> <path d="M2 8v1a2 2 0 0 0 2 2h1" /></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /></symbol>
+<symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol>
+<symbol id="i-package-check" viewBox="0 0 24 24"><path d="M12 22V12" /> <path d="m16 17 2 2 4-4" /> <path d="M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753" /> <path d="M3.29 7 12 12l8.71-5" /> <path d="m7.5 4.27 8.997 5.148" /></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /> <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /> <path d="M7 3v4a1 1 0 0 0 1 1h7" /></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5" /> <path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244" /> <path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05" /></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+</svg>
+
 <div class="topbar">
-  <button id="updateBar" type="button" hidden>🆕 App အသစ် ရပါပြီ — နှိပ်ပြီး Update လုပ်ပါ <b>Update</b></button>
-  <button class="back" id="backBtn" title="နောက်သို့" hidden>←</button>
+  <button id="updateBar" type="button" hidden><svg class="i" aria-hidden="true"><use href="#i-sparkles"/></svg> App အသစ် ရပါပြီ — နှိပ်ပြီး Update လုပ်ပါ <b><svg class="i" aria-hidden="true"><use href="#i-refresh-cw"/></svg> Update</b></button>
+  <button class="back" id="backBtn" title="နောက်သို့" aria-label="နောက်သို့" hidden><svg class="i" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
   <h1 id="title">ဖုန်းပြင်ဆိုင် စာရင်း</h1>
   <span class="pill" id="netStatus">Online</span>
-  <button class="btn sm" id="installBtn" hidden>⬇ Install</button>
+  <button class="btn sm" id="installBtn" hidden><svg class="i" aria-hidden="true"><use href="#i-download"/></svg> Install</button>
 </div>
 
 <main>
@@ -223,14 +397,14 @@
         <div><h2 id="brandName"></h2><div class="count">Mobile Phone Service Management</div></div>
       </div>
       <div class="tiles">
-        <button class="tile" data-go="received"><span class="ic">📥</span>ဖုန်းပြင်လက်ခံစာရင်း</button>
-        <button class="tile" data-go="completed"><span class="ic">✅</span>ပြုပြင်ပြီးစာရင်း</button>
-        <button class="tile" data-go="income"><span class="ic">💵</span>ဝင်ငွေစာရင်း</button>
-        <button class="tile" data-go="expenses"><span class="ic">👛</span>အသုံးစရိတ်စာရင်း</button>
-        <button class="tile" data-go="damaged"><span class="ic">💥</span>ပျက်စီးဆုံးရှုံးမှုစာရင်း</button>
-        <button class="tile" data-go="profit"><span class="ic">📊</span>အရှုံး/အမြတ်စာရင်း</button>
-        <button class="tile minor" data-go="parts"><span class="ic">📦</span>ပစ္စည်းလက်ကျန်</button>
-        <button class="tile minor" data-go="settings"><span class="ic">⚙️</span>ဆက်တင် / Backup</button>
+        <button class="tile c-blue" data-go="received"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg></span><span><b>ဖုန်းပြင်လက်ခံစာရင်း</b><small>ဖုန်းအသစ်လက်ခံ · ပြုပြင်ဆဲ</small></span></button>
+        <button class="tile c-green" data-go="completed"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-circle-check-big"/></svg></span><span><b>ပြုပြင်ပြီးစာရင်း</b><small>ငွေတိုက်စစ် · ဖုန်းပြန်ထုတ်ပေး</small></span></button>
+        <button class="tile c-teal" data-go="income"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-wallet"/></svg></span><span><b>ဝင်ငွေစာရင်း</b><small>ထုတ်ပြီးသား ဖုန်းများ</small></span></button>
+        <button class="tile c-orange" data-go="expenses"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-receipt"/></svg></span><span><b>အသုံးစရိတ်စာရင်း</b><small>ဆိုင်အသုံးစရိတ်</small></span></button>
+        <button class="tile c-rose" data-go="damaged"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-triangle-alert"/></svg></span><span><b>ပျက်စီးဆုံးရှုံးမှုစာရင်း</b><small>ပြင်ရင်း ပျက်သွားတာ</small></span></button>
+        <button class="tile c-violet" data-go="profit"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-chart-line"/></svg></span><span><b>အရှုံး/အမြတ်စာရင်း</b><small>ရက်အလိုက် အသားတင်အမြတ်</small></span></button>
+        <button class="tile minor c-amber" data-go="parts"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-package"/></svg></span><span><b>ပစ္စည်းလက်ကျန်</b></span></button>
+        <button class="tile minor c-slate" data-go="settings"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg></span><span><b>ဆက်တင် / Backup</b></span></button>
       </div>
       <div class="today" id="todayStats"></div>
       <div id="backupNotice"></div>
@@ -243,16 +417,16 @@
     <div class="toolbar">
       <span class="lbl">Search By:</span>
       <select id="searchBy"></select>
-      <input id="searchText" placeholder="🔍 Search..." style="min-width:180px">
+      <span class="search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="searchText" placeholder="Search..."></span>
       <select id="stFilter" hidden></select>
       <span id="dateFilter" class="toolbar" style="margin:0">
         <span class="lbl">ရက်စွဲ</span><input type="date" id="dFrom"><span class="lbl">မှ</span><input type="date" id="dTo">
-        <button class="btn sec sm" id="dClear" title="ရက်စွဲ filter ဖြုတ်">✕</button>
+        <button class="btn sec sm" id="dClear" title="ရက်စွဲ filter ဖြုတ်" aria-label="ရက်စွဲ filter ဖြုတ်"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </span>
       <span class="grow"></span>
       <span class="count" id="listCount"></span>
-      <button class="btn green" id="addBtn">+ အသစ်ထည့်ရန်</button>
-      <button class="btn ghost" id="exportBtn">⬇ Export to Excel</button>
+      <button class="btn green" id="addBtn"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg> အသစ်ထည့်ရန်</button>
+      <button class="btn ghost" id="exportBtn"><svg class="i" aria-hidden="true"><use href="#i-file-spreadsheet"/></svg> Export to Excel</button>
     </div>
     <div class="tbl"><table id="listTable"></table></div>
   </section>
@@ -271,7 +445,7 @@
         <label>Date To<input type="date" id="pTo"></label>
         <label class="radio"><input type="radio" name="pDmg" value="1" checked> ပျက်စီးဆုံးရှုံးမှုတန်ဖိုး အပါအဝင်</label>
         <label class="radio"><input type="radio" name="pDmg" value="0"> ပျက်စီးဆုံးရှုံးမှုတန်ဖိုး မပါ</label>
-        <button class="btn" id="pPrint" style="width:100%;margin-top:10px">🖨 Print ထုတ်ရန်</button>
+        <button class="btn" id="pPrint" style="width:100%;margin-top:10px"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg> Print ထုတ်ရန်</button>
       </div>
       <div class="card">
         <div class="period" id="pPeriod"></div>
@@ -284,7 +458,7 @@
   <section class="view" id="v-settings">
     <div class="settings">
       <form class="card" id="setForm">
-        <h3>ဆိုင် အချက်အလက် (ဘောင်ချာမှာ ပေါ်မယ်)</h3>
+        <h3><span class="hi"><svg class="i" aria-hidden="true"><use href="#i-store"/></svg></span>ဆိုင် အချက်အလက် (ဘောင်ချာမှာ ပေါ်မယ်)</h3>
         <label>ဆိုင်အမည်<input name="shopName" required></label>
         <label>ဖုန်းနံပါတ်<input name="phone"></label>
         <label>လိပ်စာ<textarea name="address" rows="2"></textarea></label>
@@ -292,8 +466,8 @@
         <label>ဆိုင် Logo (ဘောင်ချာ ဘယ်ဘက်အပေါ်)</label>
         <div class="toolbar">
           <img id="logoPreview" alt="">
-          <label class="btn sec sm" style="color:var(--text)">ပုံရွေးရန်<input type="file" id="logoFile" accept="image/*" hidden></label>
-          <button class="btn sec sm" type="button" id="logoClear">ဖယ်ရန်</button>
+          <label class="btn sec sm" style="color:var(--text)"><svg class="i" aria-hidden="true"><use href="#i-image-plus"/></svg> ပုံရွေးရန်<input type="file" id="logoFile" accept="image/*" hidden></label>
+          <button class="btn sec sm" type="button" id="logoClear"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg> ဖယ်ရန်</button>
         </div>
         <label>ဘောင်ချာ စက္ကူအရွယ်
           <select name="paper">
@@ -301,35 +475,35 @@
             <option value="80mm">80mm ဘောင်ချာစက် (receipt printer)</option>
           </select></label>
         <label class="radio"><input type="checkbox" name="stub"> လက်ခံဘောင်ချာ အောက်မှာ ဆိုင်အတွက် ဖြတ်ပိုင်း (Service Information) ထည့်မည်</label>
-        <div class="toolbar"><button class="btn ghost sm" type="button" id="samplePrint">🖨 နမူနာ ဘောင်ချာ ထုတ်ကြည့်ရန်</button></div>
+        <div class="toolbar"><button class="btn ghost sm" type="button" id="samplePrint"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg> နမူနာ ဘောင်ချာ ထုတ်ကြည့်ရန်</button></div>
         <label>Service ဆရာ စာရင်း (တစ်ကြောင်းလျှင် တစ်ယောက်)<textarea name="technicians" rows="3"></textarea></label>
         <label>စာလုံးအရွယ် (ဒီစက်အတွက်)
           <select id="fontSize">
             <option value="16">သေး</option><option value="18">ပုံမှန်</option>
             <option value="20">ကြီး</option><option value="22">အကြီးဆုံး</option>
           </select></label>
-        <button class="btn" type="submit">သိမ်းမည်</button>
+        <button class="btn" type="submit"><svg class="i" aria-hidden="true"><use href="#i-save"/></svg> သိမ်းမည်</button>
         <span class="count" id="setSaved"></span>
       </form>
       <div class="card" id="syncCard">
-        <h3>🔄 စက်များကြား Sync</h3>
+        <h3><span class="hi t"><svg class="i" aria-hidden="true"><use href="#i-cloud"/></svg></span>စက်များကြား Sync</h3>
         <p id="syncStatus" style="margin-top:0"></p>
         <div id="syncOff">
           <label>ဆိုင် Password<input type="password" id="syncKey" autocomplete="current-password"></label>
-          <button class="btn" type="button" id="syncConnect">ချိတ်ဆက်မည်</button>
+          <button class="btn" type="button" id="syncConnect"><svg class="i" aria-hidden="true"><use href="#i-cloud-check"/></svg> ချိတ်ဆက်မည်</button>
         </div>
         <div id="syncOn" class="toolbar">
-          <button class="btn" type="button" id="syncNow">ယခု Sync လုပ်မည်</button>
-          <button class="btn sec" type="button" id="syncDisconnect">ဒီစက်ကို ဖြုတ်မည်</button>
+          <button class="btn" type="button" id="syncNow"><svg class="i" aria-hidden="true"><use href="#i-refresh-cw"/></svg> ယခု Sync လုပ်မည်</button>
+          <button class="btn sec" type="button" id="syncDisconnect"><svg class="i" aria-hidden="true"><use href="#i-cloud-off"/></svg> ဒီစက်ကို ဖြုတ်မည်</button>
         </div>
       </div>
       <div class="card">
-        <h3>Backup</h3>
+        <h3><span class="hi s"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg></span>Backup</h3>
         <p class="notice" style="margin-top:0">Sync ချိတ်ထားရင်တောင် အရေးပေါ်အတွက်
           <b>ပုံမှန် (အပတ်စဉ်) Backup ဖိုင် ဒေါင်းထားပါ</b>။</p>
         <div class="toolbar">
-          <button class="btn" id="backupBtn">⬇ Backup ဒေါင်းမည်</button>
-          <label class="btn sec" style="color:var(--text);font-size:1rem">⬆ Backup ပြန်ထည့်မည်
+          <button class="btn" id="backupBtn"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg> Backup ဒေါင်းမည်</button>
+          <label class="btn sec" style="color:var(--text);font-size:1rem"><svg class="i" aria-hidden="true"><use href="#i-upload"/></svg> Backup ပြန်ထည့်မည်
             <input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
         </div>
         <p class="count" id="lastBackup"></p>
@@ -341,7 +515,7 @@
 <!-- Job (receive) dialog -->
 <dialog id="jobDlg">
   <form id="jobForm">
-    <h3 id="jobTitle">ဖုန်းလက်ခံ — အသစ်</h3>
+    <h3><span class="hi"><svg class="i" aria-hidden="true"><use href="#i-smartphone"/></svg></span><span id="jobTitle">ဖုန်းလက်ခံ — အသစ်</span></h3>
     <input type="hidden" name="id">
     <div class="grid">
       <label>ဖုန်းအပ်သည့်ရက်<input type="date" name="date" required></label>
@@ -357,8 +531,8 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn ghost" type="submit" value="print">သိမ်းပြီး 🖨 Print</button>
-      <button class="btn" type="submit" value="save">သိမ်းမည်</button>
+      <button class="btn ghost" type="submit" value="print"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg> သိမ်းပြီး Print</button>
+      <button class="btn" type="submit" value="save"><svg class="i" aria-hidden="true"><use href="#i-save"/></svg> သိမ်းမည်</button>
     </div>
   </form>
 </dialog>
@@ -366,7 +540,7 @@
 <!-- Done (complete / pickup) dialog -->
 <dialog id="doneDlg">
   <form id="doneForm">
-    <h3>▶ ပြုပြင်ပြီးစာရင်းသို့ ထည့်ရန်</h3>
+    <h3><span class="hi g"><svg class="i" aria-hidden="true"><use href="#i-circle-check-big"/></svg></span>ပြုပြင်ပြီးစာရင်းသို့ ထည့်ရန်</h3>
     <input type="hidden" name="id">
     <div class="info" id="doneInfo"></div>
     <div class="grid">
@@ -379,7 +553,7 @@
     </div>
     <div class="sumline" id="doneSum"></div>
     <details id="dmgBox">
-      <summary>💥 ပျက်စီးဆုံးရှုံးမှု ရှိရင် နှိပ်ပါ (ပြင်ရင်း ပစ္စည်းပျက်သွားမှ)</summary>
+      <summary><svg class="i" aria-hidden="true"><use href="#i-triangle-alert"/></svg> ပျက်စီးဆုံးရှုံးမှု ရှိရင် နှိပ်ပါ (ပြင်ရင်း ပစ္စည်းပျက်သွားမှ)</summary>
       <div class="grid">
         <label class="full">ပျက်စီးခဲ့သည့်ပစ္စည်း<input name="dPart"></label>
         <label>တန်ဖိုး (Ks)<input type="number" name="dValue" min="0" step="1" value="0"></label>
@@ -392,7 +566,7 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn green" type="submit" value="save">သိမ်းမည်</button>
+      <button class="btn green" type="submit" value="save"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg> သိမ်းမည်</button>
     </div>
   </form>
 </dialog>
@@ -400,7 +574,7 @@
 <!-- Pickup (ဖုန်းပြန်ထုတ်ပေး) dialog -->
 <dialog id="pickDlg">
   <form id="pickForm">
-    <h3>📤 ဖုန်းပြန်ထုတ်ပေးရန်</h3>
+    <h3><span class="hi t"><svg class="i" aria-hidden="true"><use href="#i-hand-coins"/></svg></span>ဖုန်းပြန်ထုတ်ပေးရန်</h3>
     <input type="hidden" name="id">
     <div class="info" id="pickInfo"></div>
     <div class="grid">
@@ -409,8 +583,8 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn ghost" type="submit" value="print">ထုတ်ပေးပြီး 🖨 Print</button>
-      <button class="btn green" type="submit" value="save">ထုတ်ပေးမည်</button>
+      <button class="btn ghost" type="submit" value="print"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg> ထုတ်ပေးပြီး Print</button>
+      <button class="btn green" type="submit" value="save"><svg class="i" aria-hidden="true"><use href="#i-hand-coins"/></svg> ထုတ်ပေးမည်</button>
     </div>
   </form>
 </dialog>
@@ -419,8 +593,8 @@
 <dialog id="moreDlg" style="width:min(420px, calc(100vw - 16px))">
   <form method="dialog" style="display:grid;gap:10px">
     <h3 id="moreTitle" style="margin-bottom:4px"></h3>
-    <button class="btn" type="button" id="moreUnpick" style="background:#7c3aed">↩ ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်ရန်</button>
-    <button class="btn" type="button" id="moreReopen" style="background:#eab308;color:#1d2230">🔧 ပြုပြင်ဆဲစာရင်းသို့ ပြောင်းရန်</button>
+    <button class="btn" type="button" id="moreUnpick"><svg class="i" aria-hidden="true"><use href="#i-undo-2"/></svg> ထုတ်ပြီးသားစာရင်းမှ ပယ်ဖျက်ရန်</button>
+    <button class="btn" type="button" id="moreReopen"><svg class="i" aria-hidden="true"><use href="#i-wrench"/></svg> ပြုပြင်ဆဲစာရင်းသို့ ပြောင်းရန်</button>
     <button class="btn sec" type="button" data-close>ပိတ်မည်</button>
   </form>
 </dialog>
@@ -428,7 +602,7 @@
 <!-- Expense dialog -->
 <dialog id="expDlg">
   <form id="expForm">
-    <h3>ဆိုင်အသုံးစရိတ်</h3>
+    <h3><span class="hi" style="background:linear-gradient(135deg,#fdba74,#ea580c)"><svg class="i" aria-hidden="true"><use href="#i-receipt"/></svg></span>ဆိုင်အသုံးစရိတ်</h3>
     <input type="hidden" name="id">
     <div class="grid">
       <label>ရက်စွဲ<input type="date" name="date" required></label>
@@ -437,7 +611,7 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn" type="submit">သိမ်းမည်</button>
+      <button class="btn" type="submit"><svg class="i" aria-hidden="true"><use href="#i-save"/></svg> သိမ်းမည်</button>
     </div>
   </form>
 </dialog>
@@ -445,7 +619,7 @@
 <!-- Part dialog -->
 <dialog id="partDlg">
   <form id="partForm">
-    <h3>ပစ္စည်း</h3>
+    <h3><span class="hi" style="background:linear-gradient(135deg,#fcd34d,#d97706)"><svg class="i" aria-hidden="true"><use href="#i-package"/></svg></span>ပစ္စည်း</h3>
     <input type="hidden" name="id">
     <div class="grid">
       <label class="full">ပစ္စည်းအမည်<input name="name" required placeholder="ဥပမာ redmi 13c tlcd"></label>
@@ -456,7 +630,7 @@
     </div>
     <div class="dlg-actions">
       <button class="btn sec" type="button" data-close>မလုပ်တော့ပါ</button>
-      <button class="btn" type="submit">သိမ်းမည်</button>
+      <button class="btn" type="submit"><svg class="i" aria-hidden="true"><use href="#i-save"/></svg> သိမ်းမည်</button>
     </div>
   </form>
 </dialog>
@@ -575,15 +749,19 @@ const C = {
   eAmount:    { label: 'ငွေပမာဏ', get: r => r.amount, money: true },
   pName:      { label: 'ပစ္စည်းအမည်', get: r => r.name },
   pQty:       { label: 'လက်ကျန်', get: r => r.qty, num: true,
-                html: r => `<button class="ib" onclick="adjQty('${r.id}',-1)">➖</button>
+                html: r => `${ib('minus', 'လျှော့', `adjQty('${r.id}',-1)`)}
                   <span class="${n(r.qty) <= n(r.min) ? 'low' : ''}">${num(r.qty)}</span>
-                  <button class="ib" onclick="adjQty('${r.id}',1)">➕</button>` },
+                  ${ib('plus', 'တိုး', `adjQty('${r.id}',1)`)}` },
   pMin:       { label: 'အနည်းဆုံး', get: r => r.min, num: true },
   pBuy:       { label: 'ဝယ်ဈေး', get: r => r.buy, money: true },
   pSell:      { label: 'ရောင်းဈေး', get: r => r.sell, money: true },
   pValue:     { label: 'တန်ဖိုး', get: r => n(r.buy) * n(r.qty), money: true },
 };
-const ib = (icon, title, fn) => `<button class="ib" title="${title}" onclick="${fn}">${icon === '▶' ? '<span class="play">▶</span>' : icon}</button>`;
+// Icons: Lucide sprite (<symbol id="i-…">) — ခလုတ်အမျိုးအစားအလိုက် အရောင်
+const svgI = (n, cls = '') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const IB_COLOR = { printer: 'blue', 'circle-check-big': 'green', 'hand-coins': 'teal', coins: 'amber', 'ellipsis-vertical': 'slate',
+                   pencil: 'indigo', 'trash-2': 'red', minus: 'slate', plus: 'slate' };
+const ib = (icon, title, fn) => `<button class="ib c-${IB_COLOR[icon] || 'slate'}" title="${title}" aria-label="${title}" onclick="${fn}">${svgI(icon)}</button>`;
 // အခြေအနေ: open = ပြုပြင်ဆဲ → repaired = ပြုပြင်ပြီး (ဆိုင်မှာရှိဆဲ) → done = ဖောက်သည် ထုတ်ယူပြီး
 const doneJobs = () => db.jobs.filter(j => j.status === 'done');                       // ထုတ်ပြီး (ဝင်ငွေ/အမြတ်)
 const repairedJobs = () => db.jobs.filter(j => j.status === 'repaired' || j.status === 'done');
@@ -595,8 +773,8 @@ const VIEWS = {
     title: 'ဖုန်းပြင်လက်ခံစာရင်း', dateKey: 'date', add: () => openJob(),
     rows: () => db.jobs.filter(j => j.status === 'open'),
     cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.problem, C.tech, C.estimate, C.date, C.note],
-    acts: r => ib('🖨', 'လက်ခံဘောင်ချာ Print', `printJob('${r.id}')`) + ib('▶', 'ပြုပြင်ပြီးစာရင်းသို့ ပြောင်းရန်', `openDone('${r.id}')`) +
-               ib('✏️', 'ပြင်ရန်', `openJob('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
+    acts: r => ib('printer', 'လက်ခံဘောင်ချာ Print', `printJob('${r.id}')`) + ib('circle-check-big', 'ပြုပြင်ပြီးစာရင်းသို့ ပြောင်းရန်', `openDone('${r.id}')`) +
+               ib('pencil', 'ပြင်ရန်', `openJob('${r.id}')`) + ib('trash-2', 'ဖျက်ရန်', `delJob('${r.id}')`),
     stats: rows => [['gray', 'လက်ခံထားဆဲ ဖုန်း', rows.length + ' လုံး'], ['blue', 'ခန့်မှန်းငွေ စုစုပေါင်း', ks(sum(rows, r => r.estimate))],
                     ['purple', 'စရံငွေ စုစုပေါင်း', ks(sum(rows, r => r.deposit))]],
   },
@@ -606,10 +784,10 @@ const VIEWS = {
     statusFilter: { all: ['အားလုံး', () => true], wait: ['📦 ထုတ်ရန်ကျန် (ဆိုင်မှာရှိ)', r => r.status === 'repaired'],
                     out: ['✅ ထုတ်ပြီး', r => r.status === 'done'] },
     cols: [C.vr, C.customer, C.phone, C.model, C.imei, C.repairDesc, C.partFee, C.serviceFee, C.total, C.hasDmg, C.tech, C.date, C.pickState, C.result],
-    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) +
-               (r.status === 'repaired' ? ib('▶', 'ဖုန်းပြန်ထုတ်ပေးရန်', `openPick('${r.id}')`) : '') +
-               ib('💰', 'ပစ္စည်းဖိုး/လက်ခ ပြင်ရန်', `openDone('${r.id}')`) + ib('⚙️', 'အခြား', `openMore('${r.id}')`) +
-               ib('✏️', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delJob('${r.id}')`),
+    acts: r => ib('printer', 'ဘောင်ချာ Print', `printJob('${r.id}')`) +
+               (r.status === 'repaired' ? ib('hand-coins', 'ဖုန်းပြန်ထုတ်ပေးရန်', `openPick('${r.id}')`) : '') +
+               ib('coins', 'ပစ္စည်းဖိုး/လက်ခ ပြင်ရန်', `openDone('${r.id}')`) + ib('ellipsis-vertical', 'အခြား', `openMore('${r.id}')`) +
+               ib('pencil', 'အချက်အလက် ပြင်ရန်', `openJob('${r.id}')`) + ib('trash-2', 'ဖျက်ရန်', `delJob('${r.id}')`),
     stats: rows => { const w = rows.filter(r => r.status === 'repaired');
       return [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['purple', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
               ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))], ['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))],
@@ -619,7 +797,7 @@ const VIEWS = {
     title: 'ဝင်ငွေစာရင်း', dateKey: 'pickupDate',
     rows: doneJobs,
     cols: [C.vr, C.customer, C.model, C.problem, C.date, C.pickup, C.partName, C.partFee, C.serviceFee, C.total],
-    acts: r => ib('🖨', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('💰', 'ငွေ ပြင်ရန်', `openDone('${r.id}')`),
+    acts: r => ib('printer', 'ဘောင်ချာ Print', `printJob('${r.id}')`) + ib('coins', 'ငွေ ပြင်ရန်', `openDone('${r.id}')`),
     stats: rows => [['green', 'ဝင်ငွေစုစုပေါင်း', ks(sum(rows, total))], ['red', 'ပစ္စည်းဖိုးစုစုပေါင်း', ks(sum(rows, r => r.partFee))],
                     ['blue', 'လက်ခစုစုပေါင်း', ks(sum(rows, r => r.serviceFee))]],
   },
@@ -627,21 +805,21 @@ const VIEWS = {
     title: 'ဆိုင်အသုံးစရိတ်စာရင်း', dateKey: 'date', add: () => openExp(), defaultSearch: 1,
     rows: () => db.expenses,
     cols: [C.eDate, C.eDesc, C.eAmount],
-    acts: r => ib('✏️', 'ပြင်ရန်', `openExp('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delExp('${r.id}')`),
-    stats: rows => [['red', 'အသုံးစရိတ်စုစုပေါင်း', ks(sum(rows, r => r.amount))]],
+    acts: r => ib('pencil', 'ပြင်ရန်', `openExp('${r.id}')`) + ib('trash-2', 'ဖျက်ရန်', `delExp('${r.id}')`),
+    stats: rows => [['red', 'အသုံးစရိတ်စုစုပေါင်း', ks(sum(rows, r => r.amount)), 'receipt']],
   },
   damaged: {
     title: 'ပျက်စီးဆုံးရှုံးမှုစာရင်း', dateOf: r => r.repairedDate || r.pickupDate || r.date,
     rows: () => repairedJobs().filter(j => dmg(j) > 0),
     cols: [C.vr, C.model, C.problem, C.dPart, C.dValue, C.dQty, C.dAmount, C.tech, C.date, C.pickup],
-    acts: r => ib('💰', 'ပြင်ရန်', `openDone('${r.id}')`),
+    acts: r => ib('coins', 'ပြင်ရန်', `openDone('${r.id}')`),
     stats: rows => [['red', 'ပျက်စီးဆုံးရှုံးမှုစုစုပေါင်း', ks(sum(rows, dmg))]],
   },
   parts: {
     title: 'ပစ္စည်းလက်ကျန်', add: () => openPart(),
     rows: () => db.parts.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))),
     cols: [C.pName, C.pQty, C.pMin, C.pBuy, C.pSell, C.pValue],
-    acts: r => ib('✏️', 'ပြင်ရန်', `openPart('${r.id}')`) + ib('❌', 'ဖျက်ရန်', `delPart('${r.id}')`),
+    acts: r => ib('pencil', 'ပြင်ရန်', `openPart('${r.id}')`) + ib('trash-2', 'ဖျက်ရန်', `delPart('${r.id}')`),
     stats: rows => [['blue', 'Stock တန်ဖိုး', ks(sum(rows, r => n(r.buy) * n(r.qty)))],
                     ['red', 'လက်ကျန်နည်း ပစ္စည်း', rows.filter(r => n(r.qty) <= n(r.min)).length + ' မျိုး']],
   },
@@ -678,8 +856,9 @@ function filteredRows() {
 }
 function renderList() {
   const cfg = VIEWS[cur], rows = filteredRows();
-  $('#listStats').innerHTML = cfg.stats(rows).map(([c, l, v]) =>
-    `<div class="stat ${c}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  const STAT_ICON = { green: 'piggy-bank', purple: 'package', blue: 'wrench', red: 'triangle-alert', gray: 'smartphone' };
+  $('#listStats').innerHTML = cfg.stats(rows).map(([c, l, v, ic]) =>
+    `<div class="stat ${c}"><div><div class="l">${l}</div><div class="v">${v}</div></div><span class="si">${svgI(ic || STAT_ICON[c])}</span></div>`).join('');
   $('#listCount').textContent = rows.length + ' ခု';
   const cellCls = c => c.money || c.num ? 'num' : c.date ? 'nowrap' : (c.cls || '');
   const cell = (c, r) => c.html ? c.html(r) : c.money ? num(c.get(r)) : c.date ? fmtD(c.get(r)) : esc(c.get(r));
@@ -1011,7 +1190,9 @@ function renderHome() {
   const items = [['ယနေ့ လက်ခံ', db.jobs.filter(j => j.date === t).length + ' လုံး'], ['ယနေ့ ထုတ်ယူ', done.length + ' လုံး'],
     ['ယနေ့ ဝင်ငွေ', ks(sum(done, total))], ['ပြုပြင်ဆဲ', db.jobs.filter(j => j.status === 'open').length + ' လုံး'],
     ['ပြင်ပြီး ထုတ်ရန်ကျန်', db.jobs.filter(j => j.status === 'repaired').length + ' လုံး']];
-  $('#todayStats').innerHTML = items.map(([l, v]) => `<div><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  const TI = ['inbox', 'hand-coins', 'piggy-bank', 'wrench', 'package-check'];
+  $('#todayStats').innerHTML = items.map(([l, v], i) =>
+    `<div><span class="ti">${svgI(TI[i] || 'smartphone')}</span><div><div class="l">${l}</div><div class="v">${v}</div></div></div>`).join('');
   const old = !db.lastBackup || (Date.now() - new Date(db.lastBackup)) > 7 * 864e5;
   $('#backupNotice').innerHTML = old && db.jobs.length
     ? `<div class="notice">⚠️ Backup မလုပ်ရသေးတာ ၇ ရက်ကျော်ပြီ — <a href="#settings">ဆက်တင်</a> မှာ Backup ဒေါင်းထားပါ။</div>` : '';
@@ -1148,9 +1329,9 @@ async function allocVr() {
   return sync.key ? v + (sync.tag || 'X') : v;
 }
 const SYNC_MSG = {
-  busy: ['☁ Sync လုပ်နေသည်...', ''], ok: ['☁ Sync ✓', ''],
-  offline: ['☁ Offline — လိုင်းရရင် ပို့မယ်', 'off'], auth: ['☁ Password မှားနေပါတယ်', 'off'],
-  noapi: ['☁ ဒီ link မှာ Sync မရ', 'off'], notconf: ['☁ Cloudflare မှာ setup မပြီးသေး', 'off'], error: ['☁ Sync error — ပြန်ကြိုးစားမယ်', 'off'],
+  busy: ['Sync လုပ်နေသည်...', ''], ok: ['Sync ✓', ''],
+  offline: ['Offline — လိုင်းရရင် ပို့မယ်', 'off'], auth: ['Password မှားနေပါတယ်', 'off'],
+  noapi: ['ဒီ link မှာ Sync မရ', 'off'], notconf: ['Cloudflare မှာ setup မပြီးသေး', 'off'], error: ['Sync error — ပြန်ကြိုးစားမယ်', 'off'],
 };
 const SYNC_HELP = {
   auth: 'Password မှားနေပါတယ်။ ဆိုင်ရှင်ဆီက password အမှန်ကို မေးပြီး ပြန်ချိတ်ပါ။',
@@ -1229,7 +1410,9 @@ function updateNet() {
     const pend = Object.keys(sync.pending).length;
     if (pend && st !== 'busy') txt += ` (${pend})`;
   }
-  const el = $('#netStatus'); el.textContent = txt; el.classList.toggle('off', cls === 'off');
+  const st = sync.key ? (navigator.onLine ? (syncState || 'busy') : 'offline') : (navigator.onLine ? '' : 'offline');
+  const icon = st === 'busy' ? 'refresh-cw' : st === 'ok' ? 'cloud-check' : st === '' ? 'cloud' : 'cloud-off';
+  const el = $('#netStatus'); el.innerHTML = svgI(icon, st === 'busy' ? 'spin' : '') + esc(txt); el.classList.toggle('off', cls === 'off');
 }
 net.style.cursor = 'pointer'; net.title = 'Sync ဆက်တင်'; net.onclick = () => location.hash = 'settings';
 addEventListener('online', updateNet); addEventListener('offline', updateNet); updateNet();
